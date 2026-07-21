@@ -39,6 +39,6 @@
 - [x] Keep update work out of silent switching modes
 - [x] Add installer/update/portable packaging and GitHub Actions workflow
 - [x] Add release instructions and Stream Deck icons
-- [ ] Configure the final GitHub owner if it differs from `RenderNorth`
+- [x] Configure the public GitHub update source for `Maxdelta/rendernorth-display-switcher`
 - [ ] Test a real GitHub update from an older installed release
 - [ ] Add Authenticode signing certificate

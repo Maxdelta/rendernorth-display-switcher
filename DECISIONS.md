@@ -44,4 +44,4 @@ The GUI compares the currently active source-to-target path topology against bot
 
 The installed edition uses Velopack 1.2.0 and the official public GitHub Releases source over HTTPS. Velopack owns feed parsing, package verification, download, apply, restart, install, and uninstall behavior; no custom executable downloader is used. Automatic checks occur only after normal GUI startup. Portable mode reports that automatic updates are unavailable.
 
-`Directory.Build.props` is the single version source. `Services/UpdateService.cs` contains the one repository URL constant that must be updated if the final GitHub owner differs from `RenderNorth`.
+`Directory.Build.props` is the single version source. `Services/UpdateService.cs` contains the authoritative public update source: `https://github.com/Maxdelta/rendernorth-display-switcher`.

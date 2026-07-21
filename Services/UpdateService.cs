@@ -10,8 +10,8 @@ internal sealed record UpdateStatus(UpdateState State, string Message, string? A
 
 internal sealed class UpdateService
 {
-    // Replace only this constant if the final GitHub owner differs.
-    internal const string GitHubRepositoryUrl = "https://github.com/RenderNorth/rendernorth-display-switcher";
+    // Authoritative public release source for installer updates.
+    internal const string GitHubRepositoryUrl = "https://github.com/Maxdelta/rendernorth-display-switcher";
     private readonly AppLogger _log;
     private UpdateManager? _manager;
     private UpdateInfo? _available;
