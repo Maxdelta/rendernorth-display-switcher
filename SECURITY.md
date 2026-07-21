@@ -6,8 +6,8 @@ Security fixes are provided for the latest published version.
 
 | Version | Supported |
 |---|---|
-| 0.2.x | Yes |
-| Earlier | No |
+| 0.3.x | Yes |
+| 0.2.x and earlier | No |
 
 ## Reporting a vulnerability
 

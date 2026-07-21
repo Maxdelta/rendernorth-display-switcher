@@ -12,7 +12,9 @@ RenderNorth Display Switcher instantly restores saved Windows display layouts, s
 
 It runs independently of OBS, Streamlabs, and DisplayFusion on the gaming PC. The installed edition supports optional in-app updates; the portable edition is replaced manually when a new version is released.
 
-![RenderNorth Display Switcher showing the active profile and mode controls](docs/images/application-main-window.png)
+![RenderNorth Display Switcher repository banner](assets/repository/rendernorth-display-switcher-social-preview.png)
+
+![RenderNorth Display Switcher showing the active profile and mode controls](assets/screenshots/application-main-window.png)
 
 *The main window shows the detected display profile, prominent Game and Script controls, profile management, utilities, and switch/update status.*
 
@@ -77,7 +79,7 @@ Windows treats monitors and capture-card outputs as a display topology: a map of
 
 | Main application | About dialog |
 |---|---|
-| ![RenderNorth Display Switcher main application](docs/images/application-main-window.png) | ![RenderNorth Display Switcher About dialog](docs/images/about-dialog.png) |
+| ![RenderNorth Display Switcher main application](assets/screenshots/application-main-window.png) | ![RenderNorth Display Switcher About dialog](assets/screenshots/about-dialog.png) |
 
 ### Example Windows layouts
 
@@ -85,13 +87,13 @@ The numbers assigned by Windows are examples only; yours may differ.
 
 | Game Mode example | Script Mode setup example |
 |---|---|
-| ![Windows Game Mode display layout](docs/images/windows-game-mode.png) | ![Windows Script Mode setup](docs/images/windows-script-mode-setup.png) |
+| ![Windows Game Mode display layout](assets/screenshots/windows-game-mode.png) | ![Windows Script Mode setup](assets/screenshots/windows-script-mode-setup.png) |
 
 ### Included Stream Deck icons
 
 | Game Mode | Script Mode |
 |---|---|
-| <img src="docs/stream-deck-icons/game-mode.png" alt="Game Mode Stream Deck icon" width="144"> | <img src="docs/stream-deck-icons/script-mode.png" alt="Script Mode Stream Deck icon" width="144"> |
+| <img src="assets/stream-deck/game-mode.png" alt="Game Mode Stream Deck icon" width="144"> | <img src="assets/stream-deck/script-mode.png" alt="Script Mode Stream Deck icon" width="144"> |
 
 ## Installation and Updates
 
@@ -140,7 +142,7 @@ The Stream Deck must be connected to the gaming PC running the utility.
 2. Select `RenderNorthGameMode.exe` and label the button **Game Mode**.
 3. Add a second **System → Open Application** action.
 4. Select `RenderNorthScriptMode.exe` and label it **Script Mode**.
-5. Optionally use the included icons from `docs/stream-deck-icons`.
+5. Optionally use the included icons from `assets/stream-deck`.
 
 The launchers switch profiles silently. No popup, console window, splash screen, or main application window appears. The Elgato feed may briefly go black while Windows renegotiates the display signal.
 
@@ -233,7 +235,7 @@ The application creates `profiles` and `logs` folders beside its executable. Pro
 
 No. The application uses normal user-level Windows display configuration APIs.
 
-## Planned Directions
+## Roadmap
 
 Possible future directions—not promised release commitments—include:
 
@@ -248,6 +250,12 @@ Possible future directions—not promised release commitments—include:
 RenderNorth Display Switcher has no analytics, telemetry, advertising, or accounts. Profiles and logs remain local. The installed edition contacts the configured public GitHub Releases repository over HTTPS only for optional update metadata and Velopack packages. No GitHub credential is stored in the application.
 
 See [SECURITY.md](SECURITY.md) for vulnerability reporting and update-security details. See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidance.
+
+## RenderNorth Ecosystem
+
+RenderNorth Display Switcher is the first public RenderNorth desktop application and the reference implementation for future creator-focused Windows utilities. Its installer, optional updater, release automation, local logging, documentation, and silent launcher pattern form the baseline documented in the [RenderNorth Desktop Product Standard](docs/DESKTOP_PRODUCT_STANDARD.md).
+
+Website-ready product copy is maintained in [docs/PRODUCT_PAGE.md](docs/PRODUCT_PAGE.md). Reusable launch copy is available in [docs/MARKETING.md](docs/MARKETING.md).
 
 ## License
 
