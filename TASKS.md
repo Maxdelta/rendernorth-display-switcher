@@ -10,6 +10,7 @@
 - [x] Provide GUI actions and `--game` / `--script` commands
 - [x] Write local logs and clear result dialogs
 - [x] Add build and standalone publish scripts
+- [x] Add dedicated no-console Game Mode and Script Mode launcher executables
 - [ ] Test Game Mode switching on the target three-display hardware
 - [ ] Test Script Mode switching on the target three-display hardware
 - [ ] Test Stream Deck buttons on the target setup

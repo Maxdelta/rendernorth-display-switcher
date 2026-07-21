@@ -19,14 +19,25 @@ A small Windows 11 utility that captures and restores complete, working display 
 
 The app captures Windows' exact active paths and modes, including source positions, clone relationships, resolutions, and refresh-rate data. Windows may adjust a mode only when required by the driver or hardware (`SDC_ALLOW_CHANGES`).
 
-## Stream Deck
+## Using with Elgato Stream Deck
 
-Create two **System > Open** actions:
+The publish folder includes two dedicated, no-console launcher applications. They locate `RenderNorthDisplaySwitcher.exe` relative to themselves, so the complete publish folder can be moved without editing shortcuts.
 
-- Game: select `RenderNorthDisplaySwitcher.exe` and add argument `--game`
-- Script: select `RenderNorthDisplaySwitcher.exe` and add argument `--script`
+1. Open the Stream Deck application.
+2. Drag a **System > Open** action onto the button you want to use for Game Mode.
+3. In the action's **App / File** field, browse to the publish folder and select `RenderNorthGameMode.exe`.
+4. Give the button a title such as **Game Mode**.
+5. Drag another **System > Open** action onto the Script Mode button.
+6. Select `RenderNorthScriptMode.exe` and title the button **Script Mode**.
+7. Press each button once and confirm the main application reports a successful switch.
 
-If your Stream Deck version has one combined App/File field, use a `.bat` shortcut or quote the executable path followed by the argument. Keep the published folder together: profiles and logs are stored beside the executable.
+No command-line argument is needed in Stream Deck. Keep these three files together in the same folder:
+
+- `RenderNorthDisplaySwitcher.exe`
+- `RenderNorthGameMode.exe`
+- `RenderNorthScriptMode.exe`
+
+The original `--game` and `--script` command-line options remain supported for scripts and terminals.
 
 ## Build and publish
 

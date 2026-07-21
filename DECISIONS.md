@@ -23,3 +23,7 @@ Profiles and logs live beside the executable. This keeps the no-installer MVP tr
 ## Windows Forms
 
 WinForms provides the smallest built-in .NET 8 Windows desktop surface for five buttons and message dialogs, with no third-party packages.
+
+## Dedicated Stream Deck launchers
+
+Two framework-dependent, single-file `WinExe` launchers sit beside the standalone main application. Each resolves the main executable from its own directory, starts the appropriate command, and exits immediately. `WinExe` prevents a console window, while avoiding two additional copies of the large self-contained .NET runtime keeps the launchers small.

@@ -15,4 +15,8 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Launchers\**\*.cs" />
+    <None Remove="Launchers\**\*" />
+  </ItemGroup>
 </Project>

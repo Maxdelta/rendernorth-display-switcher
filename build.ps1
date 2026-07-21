@@ -9,8 +9,17 @@ $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE = '1'
 $env:DOTNET_CLI_TELEMETRY_OPTOUT = '1'
 $env:NUGET_PACKAGES = Join-Path $projectRoot '.nuget\packages'
 
-dotnet restore (Join-Path $projectRoot 'RenderNorthDisplaySwitcher.csproj') --configfile (Join-Path $projectRoot 'NuGet.Config')
-if ($LASTEXITCODE -ne 0) { throw "dotnet restore failed with exit code $LASTEXITCODE" }
-dotnet build (Join-Path $projectRoot 'RenderNorthDisplaySwitcher.csproj') --configuration Release --no-restore --output $output
-if ($LASTEXITCODE -ne 0) { throw "dotnet build failed with exit code $LASTEXITCODE" }
+$projects = @(
+    'RenderNorthDisplaySwitcher.csproj',
+    'Launchers\RenderNorthGameMode\RenderNorthGameMode.csproj',
+    'Launchers\RenderNorthScriptMode\RenderNorthScriptMode.csproj'
+)
+
+foreach ($project in $projects) {
+    $projectPath = Join-Path $projectRoot $project
+    dotnet restore $projectPath --configfile (Join-Path $projectRoot 'NuGet.Config')
+    if ($LASTEXITCODE -ne 0) { throw "dotnet restore failed for $project with exit code $LASTEXITCODE" }
+    dotnet build $projectPath --configuration Release --no-restore --output $output
+    if ($LASTEXITCODE -ne 0) { throw "dotnet build failed for $project with exit code $LASTEXITCODE" }
+}
 Write-Host "Build succeeded: $output"

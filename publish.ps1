@@ -11,4 +11,16 @@ $env:NUGET_PACKAGES = Join-Path $projectRoot '.nuget\packages'
 
 dotnet publish (Join-Path $projectRoot 'RenderNorthDisplaySwitcher.csproj') --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=true --configfile (Join-Path $projectRoot 'NuGet.Config') --output $output
 if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed with exit code $LASTEXITCODE" }
+
+$launchers = @(
+    'Launchers\RenderNorthGameMode\RenderNorthGameMode.csproj',
+    'Launchers\RenderNorthScriptMode\RenderNorthScriptMode.csproj'
+)
+foreach ($launcher in $launchers) {
+    dotnet publish (Join-Path $projectRoot $launcher) --configuration Release --runtime win-x64 --self-contained false -p:PublishSingleFile=true --configfile (Join-Path $projectRoot 'NuGet.Config') --output $output
+    if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed for $launcher with exit code $LASTEXITCODE" }
+}
+
 Write-Host "Published: $(Join-Path $output 'RenderNorthDisplaySwitcher.exe')"
+Write-Host "Game launcher: $(Join-Path $output 'RenderNorthGameMode.exe')"
+Write-Host "Script launcher: $(Join-Path $output 'RenderNorthScriptMode.exe')"
