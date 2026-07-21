@@ -1,0 +1,9 @@
+bin/
+obj/
+artifacts/
+logs/
+profiles/
+*.user
+*.suo
+.dotnet-home/
+.nuget/
