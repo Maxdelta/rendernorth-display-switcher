@@ -7,3 +7,4 @@ profiles/
 *.suo
 .dotnet-home/
 .nuget/
+*.zip

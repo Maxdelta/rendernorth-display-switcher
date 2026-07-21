@@ -34,6 +34,8 @@ Any argument-based start is treated as Automatic Mode. Recognized profile argume
 
 Launcher processes wait for the headless main process and return its exit code. This preserves silent behavior while ensuring Stream Deck activation represents a completed switch rather than only successful process creation.
 
+The public release bundles one shared self-contained .NET runtime beside the two small launcher apphosts. This avoids duplicating the runtime inside both launchers and removes the need for end users to install .NET separately. The main switcher remains a self-contained single file.
+
 ## Configuration-derived GUI status
 
 The GUI compares the currently active source-to-target path topology against both saved profiles. It does not infer the current mode from the last button pressed. The last result and successful timestamp are persisted beside the profiles so automatic Stream Deck activity is visible the next time the GUI opens.

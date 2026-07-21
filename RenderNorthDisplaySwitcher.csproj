@@ -14,6 +14,11 @@
     <PublishSingleFile>true</PublishSingleFile>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <InvariantGlobalization>true</InvariantGlobalization>
+    <Version>0.2.0</Version>
+    <Authors>RenderNorth</Authors>
+    <Product>RenderNorth Display Switcher</Product>
+    <Description>Native Windows display-profile switching for dual-PC streaming setups.</Description>
+    <Copyright>Copyright © 2026 RenderNorth</Copyright>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Launchers\**\*.cs" />
