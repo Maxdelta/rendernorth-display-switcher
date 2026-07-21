@@ -30,6 +30,7 @@
 - [ ] Add profile export/import with explicit hardware validation
 - [ ] Add optional hotkeys
 - [ ] Add code signing and an installer if distribution expands
+- [ ] Add a real Stream Deck configuration screenshot or short switching demo GIF to the public README
 
 ## v0.3.0
 

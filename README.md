@@ -1,130 +1,167 @@
 # RenderNorth Display Switcher
 
-**Fast, reliable Windows display-profile switching for dual-PC streaming setups.**
+![Windows 11](https://img.shields.io/badge/Windows-11-0078D4?logo=windows11&logoColor=white)
+[![.NET 8](https://img.shields.io/badge/.NET-8-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/download/dotnet/8.0)
+[![MIT License](https://img.shields.io/github/license/Maxdelta/rendernorth-display-switcher)](LICENSE)
+[![Latest GitHub Release](https://img.shields.io/github/v/release/Maxdelta/rendernorth-display-switcher)](https://github.com/Maxdelta/rendernorth-display-switcher/releases/latest)
+[![Total GitHub Downloads](https://img.shields.io/github/downloads/Maxdelta/rendernorth-display-switcher/total)](https://github.com/Maxdelta/rendernorth-display-switcher/releases)
 
-RenderNorth Display Switcher saves two known-good Windows display configurations and restores either one from a small desktop app, a silent command, or dedicated Elgato Stream Deck launchers. It uses the native Windows display-configuration APIs and does not require OBS, Streamlabs, or DisplayFusion.
+**One-click display switching for dual-PC streamers using Elgato capture cards.**
 
-> **Platform:** Windows 11 x64<br>
-> **Release:** v0.3.0<br>
-> **Brand:** RenderNorth
+RenderNorth Display Switcher instantly restores saved Windows display layouts, so you do not have to open Windows Display Settings during a stream. It was built for dual-PC creators who need to change which monitor is mirrored to an Elgato capture card while keeping another display private.
 
-![RenderNorth Display Switcher main window](docs/images/application-main-window.png)
+It runs independently of OBS, Streamlabs, and DisplayFusion on the gaming PC. The installed edition supports optional in-app updates; the portable edition is replaced manually when a new version is released.
 
-## The problem
+![RenderNorth Display Switcher showing the active profile and mode controls](docs/images/application-main-window.png)
 
-A dual-PC streaming setup may need the capture device to mirror different physical monitors at different times. Rebuilding those clone and extended-desktop relationships in Windows Settings during a stream is slow and error-prone. Windows display numbers can also change, making scripts that assume fixed numbers unreliable.
+*The main window shows the detected display profile, prominent Game and Script controls, profile management, utilities, and switch/update status.*
 
-RenderNorth Display Switcher lets Windows create each working layout once, captures the exact native configuration, and restores it later using stable monitor device identities.
+## Quick Start
+
+1. [Install the Windows setup edition](#installation-and-updates).
+2. [Configure and save Game Mode](#saving-profiles).
+3. Configure and save Script Mode.
+4. [Add the two silent launchers to Stream Deck](#using-with-elgato-stream-deck).
+5. Press either button to switch the Elgato routing.
+
+## Why I Built This
+
+I use a dual-PC streaming setup. Sometimes I want viewers to see the game on my main gaming monitor. Other times I want to read a script directly beneath my camera while viewers continue seeing gameplay, files, code, or browser content from my second monitor.
+
+Windows makes changing which display is duplicated to the capture card slow and awkward during a live stream. I built RenderNorth Display Switcher so I could change that routing with one Stream Deck button.
+
+## Who Is This For?
+
+- Dual-PC streamers
+- Elgato HD60 X users and users of other HDMI capture cards that appear as Windows display outputs
+- Elgato Stream Deck users
+- Developers demonstrating software
+- Presenters using private notes
+- Creators who need one display to remain private
+
+The original hardware verification used an Elgato HD60 X. Other HDMI capture devices may work when Windows recognizes them as display outputs, but they have not all been individually tested.
+
+## The Two Display Layouts
+
+Windows treats monitors and capture-card outputs as a display topology: a map of which screens are extended and which are duplicated. RenderNorth Display Switcher lets you configure each layout once in Windows, then saves and restores the exact working topology. It identifies monitors using stable Windows device paths instead of trusting display numbers that may later change.
+
+### Game Mode
+
+- The main gaming monitor is duplicated to the Elgato.
+- The game remains directly in front of the streamer.
+- The second monitor remains extended.
+
+### Script Mode
+
+- The main monitor remains private for a script beneath the camera.
+- The second monitor is duplicated to the Elgato.
+- Viewers see the second monitor through the streaming PC.
+- The private script display is not sent to the streaming computer.
 
 ## Features
 
-- Saves exact **Game Mode** and **Script Mode** display layouts.
-- Restores clone relationships, source positions, resolutions, and refresh-rate data through `QueryDisplayConfig` and `SetDisplayConfig`.
-- Identifies monitors by device path instead of assuming Windows display numbers remain fixed.
-- Keeps the current layout as a rollback configuration if activation fails.
-- Verifies the resulting source-to-target topology after each switch.
-- Provides dedicated `RenderNorthGameMode.exe` and `RenderNorthScriptMode.exe` launchers for Stream Deck.
-- Runs command-line and launcher activation silently with meaningful exit codes.
-- Logs actions and errors locally.
-- Detects whether the current topology matches Game Mode, Script Mode, or neither.
-- Includes an About dialog with RenderNorth project links and version information.
-- Requires no installer and collects no telemetry.
+- Saves exact **Game Mode** and **Script Mode** layouts.
+- Restores clone relationships, positions, resolutions, and refresh-rate data using native `QueryDisplayConfig` and `SetDisplayConfig` APIs.
+- Uses monitor device paths instead of assuming Windows display numbers remain fixed.
+- Captures a rollback configuration before switching and restores it when possible after failure.
+- Verifies the resulting source-to-monitor topology.
+- Provides silent Game and Script launcher executables for Stream Deck.
+- Detects whether the active layout is Game Mode, Script Mode, or Custom / Unknown.
+- Writes local action and error logs.
+- Requires no OBS, Streamlabs, or DisplayFusion integration.
+- Collects no analytics or telemetry.
 
-## Screenshots
+## Screenshots and Stream Deck Icons
 
-### Application
+### Application and About
 
-![Application window showing Game Mode status](docs/images/application-main-window.png)
-
-### About RenderNorth Display Switcher
-
-![About dialog showing version and RenderNorth links](docs/images/about-dialog.png)
+| Main application | About dialog |
+|---|---|
+| ![RenderNorth Display Switcher main application](docs/images/application-main-window.png) | ![RenderNorth Display Switcher About dialog](docs/images/about-dialog.png) |
 
 ### Example Windows layouts
 
-The numbers shown by Windows are examples only; your numbering may differ.
+The numbers assigned by Windows are examples only; yours may differ.
 
 | Game Mode example | Script Mode setup example |
 |---|---|
 | ![Windows Game Mode display layout](docs/images/windows-game-mode.png) | ![Windows Script Mode setup](docs/images/windows-script-mode-setup.png) |
 
-## Installation
+### Included Stream Deck icons
 
-1. Download the v0.3.0 installer from the GitHub release (recommended), or the portable ZIP.
-2. Right-click the ZIP, choose **Extract All**, and keep the extracted files together.
-3. Run `RenderNorthDisplaySwitcher.exe`.
-4. If Windows SmartScreen appears, verify that the file came from the official RenderNorth release before choosing **More info > Run anyway**.
+| Game Mode | Script Mode |
+|---|---|
+| <img src="docs/stream-deck-icons/game-mode.png" alt="Game Mode Stream Deck icon" width="144"> | <img src="docs/stream-deck-icons/script-mode.png" alt="Script Mode Stream Deck icon" width="144"> |
 
-The **installed edition** is recommended and supports automatic updates through official RenderNorth GitHub Releases. The **portable ZIP** includes required runtime files and does not self-update; download a newer portable ZIP manually. Neither edition requires a separate .NET installation.
+## Installation and Updates
 
-## Automatic updates
+Download the current release from the [GitHub Releases page](https://github.com/Maxdelta/rendernorth-display-switcher/releases/latest).
 
-The installed edition checks GitHub Releases after the normal GUI opens without blocking startup. It never checks, downloads, installs, or displays update UI during `--game`, `--script`, or Stream Deck switching. Use **Utilities > Check for Updates** for a manual check. Updates are optional: review the available version and notes, choose **Download and Install**, then confirm restart. Failures leave the application usable and are reported non-blockingly in Status and the local log.
+| Installed edition | Portable edition |
+|---|---|
+| Recommended for normal users | Useful for testing or temporary use |
+| Includes a Windows installer | No installation required |
+| Supports **Check for Updates** | Does not support automatic updates |
+| Supports optional download and restart-to-install | Replace the extracted folder manually with a newer portable release |
 
-Profiles and logs are created beside the application, so install it in a folder where your Windows account can write files. Do not run it directly from inside the ZIP.
+Updates are never forced. The installed edition checks after the normal GUI starts without blocking it. Review an available version and release notes, choose **Download and Install**, and confirm the restart when convenient. Update activity never runs during `--game`, `--script`, or Stream Deck switching.
 
-## Saving profiles
+The initial public binaries are not Authenticode-signed, so Windows SmartScreen may appear. Verify that the download came from the official [Maxdelta repository](https://github.com/Maxdelta/rendernorth-display-switcher) before running it.
+
+Profiles and logs are created beside the application. Do not run the portable edition directly from inside its ZIP.
+
+## Saving Profiles
 
 Connect every monitor and capture device before saving either profile.
 
-### Game Mode
+### Save Game Mode
 
 1. Open **Settings > System > Display**.
-2. Configure the main gaming monitor to duplicate to the capture output.
-3. Leave the secondary physical monitor extended.
+2. Duplicate the main gaming monitor to the capture output.
+3. Leave the second physical monitor extended.
 4. Confirm the main gaming monitor is primary.
 5. Open RenderNorth Display Switcher and select **Save Current Layout as Game Mode**.
 
-### Script Mode
+### Save Script Mode
 
 1. Return to **Settings > System > Display**.
-2. Leave the main gaming monitor extended and private.
-3. Duplicate the secondary physical monitor to the capture output.
-4. Confirm the main gaming monitor is still primary.
+2. Leave the main monitor extended and private.
+3. Duplicate the second monitor to the capture output.
+4. Confirm the main gaming monitor remains primary.
 5. Select **Save Current Layout as Script Mode**.
 
-Test both **Activate** buttons before relying on the profiles during a stream. Profiles are machine-specific and depend on the saved monitor device identities.
+Test both **Activate** buttons while watching the capture preview before using the profiles live. Profiles are machine-specific and depend on the connected monitor identities.
 
 ## Using with Elgato Stream Deck
 
-No command-line argument support is required in Stream Deck.
+The Stream Deck must be connected to the gaming PC running the utility.
 
-1. Open the Stream Deck application.
-2. Add a **System > Open** action for Game Mode.
-3. Select `RenderNorthGameMode.exe` as its App/File and label the button **Game Mode**.
-4. Add another **System > Open** action.
-5. Select `RenderNorthScriptMode.exe` and label the button **Script Mode**.
-6. Test both buttons while watching the capture preview.
+1. In Stream Deck, add **System → Open Application** for Game Mode.
+2. Select `RenderNorthGameMode.exe` and label the button **Game Mode**.
+3. Add a second **System → Open Application** action.
+4. Select `RenderNorthScriptMode.exe` and label it **Script Mode**.
+5. Optionally use the included icons from `docs/stream-deck-icons`.
 
-Keep these files in the same folder:
+The launchers switch profiles silently. No popup, console window, splash screen, or main application window appears. The Elgato feed may briefly go black while Windows renegotiates the display signal.
 
-- `RenderNorthDisplaySwitcher.exe`
-- `RenderNorthGameMode.exe`
-- `RenderNorthScriptMode.exe`
+Keep `RenderNorthGameMode.exe`, `RenderNorthScriptMode.exe`, `RenderNorthDisplaySwitcher.exe`, and the accompanying runtime files together.
 
-### Silent launcher executables
-
-The launchers locate the main application relative to themselves, wait for switching to finish, return its exit code, and close. Successful switches and display-engine failures show no window, console, toast, splash screen, or popup. Results are written to the local `logs` folder.
-
-The equivalent direct commands are:
+Equivalent direct commands are:
 
 ```powershell
 RenderNorthDisplaySwitcher.exe --game
 RenderNorthDisplaySwitcher.exe --script
 ```
 
-Starting `RenderNorthDisplaySwitcher.exe` without arguments opens the normal graphical interface.
+Starting `RenderNorthDisplaySwitcher.exe` without arguments opens the normal interface.
 
-## Building from source
+## Building from Source
 
 Requirements:
 
 - Windows 11 x64
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 - PowerShell 5.1 or later
-- Git, if you want source-control metadata
-
-From the repository root:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass
@@ -135,85 +172,92 @@ Build output is written to `artifacts\build`.
 
 ## Publishing
 
-Create the application publish output:
-
 ```powershell
 .\publish.ps1
+.\release.ps1 -Version 0.3.0
 ```
 
-Create the v0.3.0 portable ZIP plus Velopack installer/update assets:
-
-```powershell
-.\release.ps1
-```
-
-Generated outputs are placed under `artifacts` and are intentionally excluded from Git.
+The release script creates the Velopack installer/update assets and portable ZIP under `artifacts`. See [docs/RELEASING.md](docs/RELEASING.md) for the complete release workflow.
 
 ## Troubleshooting
 
 ### A profile has not been saved
 
-Open the normal application, configure the layout in Windows Settings, and use the matching **Save Current Layout** button.
+Configure the layout in Windows Display Settings, open the normal application, and use the matching **Save Current Layout** button.
 
 ### A required display is missing
 
-Reconnect the monitor or capture device using the expected port. The utility refuses to apply a profile if one of its saved monitor device paths is absent.
+Reconnect the monitor or capture device using its expected GPU port. The utility refuses to apply a profile when a saved monitor device path is absent.
 
-### The switch fails or produces a custom layout
+### The switch fails or shows Custom / Unknown
 
-Open the application and check the status area. Review `logs\display-switcher-YYYYMMDD.log`. If rollback also failed, press `Win+P` or restore the layout through Windows Display Settings.
+Review the Status area and `logs\display-switcher-YYYYMMDD.log`. If rollback also fails, press `Win+P` or restore the layout through Windows Display Settings.
 
 ### Stream Deck does nothing
 
-Confirm the complete extracted release folder—including its runtime files—remains together. Open the daily log file for the exact failure.
+Confirm the Stream Deck is attached to the gaming PC and that the complete installed or portable application folder remains together. Review the daily log for the exact error.
 
 ### Windows display numbers changed
 
-This is normally harmless because the utility validates monitor device paths, not only the numbers displayed in Settings. Re-save both profiles after changing a GPU, cable path, dock, capture device, or monitor.
+This is normally harmless because the utility validates monitor device paths rather than relying only on display numbers. Re-save both profiles after changing a GPU, dock, cable path, monitor, or capture device.
 
-## Known limitations
+### Update checking fails
+
+The current application remains usable. Check the internet connection and the [public release page](https://github.com/Maxdelta/rendernorth-display-switcher/releases), then review the local log. Portable builds intentionally report that automatic updates are unavailable.
+
+## Known Limitations
 
 - Windows 11 x64 only.
-- Exactly two named profiles: Game Mode and Script Mode.
-- Profiles are tied to the machine and connected monitor identities on which they were saved.
-- Portable builds do not self-update. The initial v0.3.0 installer is not code-signed unless a signing certificate is supplied to the release pipeline.
-- Windows and GPU drivers may adjust unsupported timings when applying a saved layout.
-- Display switching must be tested on each target hardware setup before production use.
+- Exactly two named profiles in v0.3.0.
+- Profiles are tied to the machine and monitor identities on which they were saved.
+- Other capture-card models have not all been tested.
+- Portable builds do not self-update.
+- Current public binaries are not Authenticode-signed.
+- Windows and GPU drivers may adjust unsupported display timings.
 
 ## FAQ
 
-### Does this control OBS, Streamlabs, or the Elgato software?
+### Does this control OBS, Streamlabs, or Elgato capture software?
 
-No. It changes the Windows display topology. Your capture software continues to receive whatever signal Windows sends to the capture output.
+No. It changes the Windows display topology. Capture software continues to receive the signal sent to the capture output.
 
-### Does it change my resolution or refresh rate?
+### Does it change resolution or refresh rate?
 
-It restores the exact saved mode arrays and preserves timings whenever Windows and the display driver allow. Windows may make a necessary supported-mode adjustment.
+It restores saved mode arrays and preserves timings whenever Windows and the display driver allow. Windows may make a necessary supported-mode adjustment.
 
 ### Where are profiles and logs stored?
 
-The application creates `profiles` and `logs` folders beside its executable. Saved profile JSON can contain monitor device identifiers and the local machine name; do not publish those generated files.
+The application creates `profiles` and `logs` folders beside its executable. Profile JSON can contain the local machine name and monitor device identifiers; do not publish those generated files.
 
 ### Is administrator access required?
 
-No. The application uses the normal user-level Windows display configuration APIs.
+No. The application uses normal user-level Windows display configuration APIs.
 
-### Can I create more profiles?
+## Planned Directions
 
-Not in v0.3.0. The release intentionally focuses on one Game Mode and one Script Mode.
+Possible future directions—not promised release commitments—include:
 
-## Privacy
+- More than two saved profiles
+- Window placement and application launching
+- Audio-device profiles
+- Deeper Stream Deck integration
+- Optional creator workspace modes
 
-RenderNorth Display Switcher has no analytics, telemetry, advertising, accounts, or network features. Configuration and log data remain local beside the executable. The program does not transmit monitor identifiers or usage information.
+## Privacy and Security
 
-## Contributing and security
+RenderNorth Display Switcher has no analytics, telemetry, advertising, or accounts. Profiles and logs remain local. The installed edition contacts the configured public GitHub Releases repository over HTTPS only for optional update metadata and Velopack packages. No GitHub credential is stored in the application.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidance and [SECURITY.md](SECURITY.md) for private vulnerability reporting guidance. Architectural rationale is recorded in [DECISIONS.md](DECISIONS.md).
+See [SECURITY.md](SECURITY.md) for vulnerability reporting and update-security details. See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidance.
 
 ## License
 
-Copyright © 2026 RenderNorth. Released under the [MIT License](LICENSE).
+Released under the [MIT License](LICENSE).
 
 ---
 
-**RenderNorth** — practical tools for reliable production workflows.
+**Part of the RenderNorth software ecosystem.**
+
+[Website](https://rendernorth.com) · [GitHub](https://github.com/Maxdelta)
+
+Copyright 2026 RenderNorth<br>
+MIT License
