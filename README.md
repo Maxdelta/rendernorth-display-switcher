@@ -45,6 +45,8 @@ Starting the main application with `--game` or `--script` runs in Automatic Mode
 
 Starting `RenderNorthDisplaySwitcher.exe` without arguments continues to open the normal interactive window.
 
+The interactive window includes a status area that compares the active Windows display paths with the saved Game and Script profiles. It reports **Game Mode**, **Script Mode**, or **Custom / Unknown**, along with the latest switch result and time of the last successful switch.
+
 ## Build and publish
 
 Requirements: Windows 11 and the .NET 8 SDK.

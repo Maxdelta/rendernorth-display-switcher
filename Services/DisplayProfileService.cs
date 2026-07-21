@@ -10,6 +10,7 @@ internal sealed class DisplayProfileService
     private readonly AppLogger _log;
     private readonly JsonSerializerOptions _json = new() { WriteIndented = true, IncludeFields = true };
     private string ProfilesFolder => Path.Combine(AppContext.BaseDirectory, "profiles");
+    private string StatusPath => Path.Combine(ProfilesFolder, "status.json");
 
     public DisplayProfileService(AppLogger log)
     {
@@ -57,7 +58,9 @@ internal sealed class DisplayProfileService
                 throw new InvalidOperationException("Windows accepted the request but the resulting source-to-monitor topology did not match the saved profile.");
 
             _log.Info($"Activated and verified {kind} profile successfully.");
-            return OperationResult.Ok($"{kind} Mode activated successfully.");
+            var success = OperationResult.Ok($"{kind} Mode activated successfully.");
+            SaveSwitchStatus(success.Message, DateTimeOffset.Now);
+            return success;
         }
         catch (Exception ex)
         {
@@ -68,8 +71,43 @@ internal sealed class DisplayProfileService
                 try { Apply(rollback); rollbackText = "The previous display layout was restored."; _log.Info("Rollback succeeded."); }
                 catch (Exception rollbackEx) { rollbackText = "Rollback also failed; use Windows Display Settings to restore the layout."; _log.Error("Rollback failed", rollbackEx); }
             }
-            return OperationResult.Fail($"Could not activate {kind} Mode.\n\n{ex.Message}\n\n{rollbackText}\n\nSee logs: {_log.LogFolder}");
+            var failure = OperationResult.Fail($"Could not activate {kind} Mode.\n\n{ex.Message}\n\n{rollbackText}\n\nSee logs: {_log.LogFolder}");
+            SaveSwitchStatus(failure.Message, null);
+            return failure;
         }
+    }
+
+    public ApplicationStatus GetApplicationStatus()
+    {
+        var currentProfile = "Custom / Unknown";
+        try
+        {
+            var active = Capture();
+            if (TryReadProfile(ProfileKind.Game, out var game) && SameTopology(game!, active))
+                currentProfile = "Game Mode";
+            else if (TryReadProfile(ProfileKind.Script, out var script) && SameTopology(script!, active))
+                currentProfile = "Script Mode";
+        }
+        catch (Exception ex)
+        {
+            _log.Error("Could not detect the current saved profile", ex);
+        }
+
+        try
+        {
+            if (File.Exists(StatusPath))
+            {
+                var saved = JsonSerializer.Deserialize<PersistedSwitchStatus>(File.ReadAllText(StatusPath), _json);
+                if (saved is not null)
+                    return new ApplicationStatus(currentProfile, saved.LastSwitchResult, saved.LastSuccessfulSwitchAt);
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.Error("Could not read the saved switch status", ex);
+        }
+
+        return new ApplicationStatus(currentProfile, "No switch has been recorded yet.", null);
     }
 
     public string IdentifyDisplays()
@@ -161,6 +199,43 @@ internal sealed class DisplayProfileService
     }
 
     private string ProfilePath(ProfileKind kind) => Path.Combine(ProfilesFolder, kind == ProfileKind.Game ? "game.json" : "script.json");
+
+    private bool TryReadProfile(ProfileKind kind, out DisplayProfile? profile)
+    {
+        profile = null;
+        var path = ProfilePath(kind);
+        if (!File.Exists(path)) return false;
+        try
+        {
+            profile = JsonSerializer.Deserialize<DisplayProfile>(File.ReadAllText(path), _json);
+            return profile is not null;
+        }
+        catch (Exception ex)
+        {
+            _log.Error($"Could not read the saved {kind} profile while detecting status", ex);
+            return false;
+        }
+    }
+
+    private void SaveSwitchStatus(string result, DateTimeOffset? successfulAt)
+    {
+        try
+        {
+            DateTimeOffset? previousSuccess = null;
+            if (File.Exists(StatusPath))
+                previousSuccess = JsonSerializer.Deserialize<PersistedSwitchStatus>(File.ReadAllText(StatusPath), _json)?.LastSuccessfulSwitchAt;
+            var status = new PersistedSwitchStatus(result, successfulAt ?? previousSuccess);
+            var temporaryPath = StatusPath + ".tmp";
+            File.WriteAllText(temporaryPath, JsonSerializer.Serialize(status, _json));
+            File.Move(temporaryPath, StatusPath, true);
+        }
+        catch (Exception ex)
+        {
+            _log.Error("Could not persist the latest switch status", ex);
+        }
+    }
+
+    private sealed record PersistedSwitchStatus(string LastSwitchResult, DateTimeOffset? LastSuccessfulSwitchAt);
     private static string Describe(DisplayProfile p) => $"Captured {p.Paths.Count} active display paths across {p.Targets.Count} display devices.";
     private static void ThrowIfError(int error, string operation)
     {

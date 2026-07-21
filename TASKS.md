@@ -12,6 +12,7 @@
 - [x] Add build and standalone publish scripts
 - [x] Add dedicated no-console Game Mode and Script Mode launcher executables
 - [x] Make command-line and Stream Deck switching fully headless with logged exit codes
+- [x] Add configuration-derived current-profile and persistent switch status to the GUI
 - [ ] Test Game Mode switching on the target three-display hardware
 - [ ] Test Script Mode switching on the target three-display hardware
 - [ ] Test Stream Deck buttons on the target setup

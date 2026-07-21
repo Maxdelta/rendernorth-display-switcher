@@ -24,14 +24,15 @@ internal static class Launcher
                 return 1;
             }
 
-            Process.Start(new ProcessStartInfo
+            using var process = Process.Start(new ProcessStartInfo
             {
                 FileName = executable,
                 Arguments = argument,
                 WorkingDirectory = AppContext.BaseDirectory,
                 UseShellExecute = false
-            });
-            return 0;
+            }) ?? throw new InvalidOperationException("Windows did not start the display switcher process.");
+            process.WaitForExit();
+            return process.ExitCode;
         }
         catch (Exception exception)
         {

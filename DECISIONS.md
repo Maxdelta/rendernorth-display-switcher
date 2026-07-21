@@ -31,3 +31,9 @@ Two framework-dependent, single-file `WinExe` launchers sit beside the standalon
 ## Headless automatic operation
 
 Any argument-based start is treated as Automatic Mode. Recognized profile arguments apply and exit without initializing or displaying the GUI. Invalid arguments, duplicate instances, and switching failures are logged and return non-zero exit codes without message boxes. No-argument startup retains the interactive behavior.
+
+Launcher processes wait for the headless main process and return its exit code. This preserves silent behavior while ensuring Stream Deck activation represents a completed switch rather than only successful process creation.
+
+## Configuration-derived GUI status
+
+The GUI compares the currently active source-to-target path topology against both saved profiles. It does not infer the current mode from the last button pressed. The last result and successful timestamp are persisted beside the profiles so automatic Stream Deck activity is visible the next time the GUI opens.
