@@ -15,8 +15,8 @@ internal sealed class MainForm : Form
         _service = service;
         _log = log;
         Text = "RenderNorth Display Switcher";
-        ClientSize = new Size(430, 485);
-        MinimumSize = new Size(446, 524);
+        ClientSize = new Size(430, 529);
+        MinimumSize = new Size(446, 568);
         StartPosition = FormStartPosition.CenterScreen;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
@@ -30,6 +30,7 @@ internal sealed class MainForm : Form
         panel.Controls.Add(Button("Activate Game Mode", (_, _) => RunOperation(() => _service.Activate(ProfileKind.Game))));
         panel.Controls.Add(Button("Activate Script Mode", (_, _) => RunOperation(() => _service.Activate(ProfileKind.Script))));
         panel.Controls.Add(Button("Identify Displays", Identify));
+        panel.Controls.Add(Button("About", (_, _) => new AboutForm().ShowDialog(this)));
         panel.Controls.Add(CreateStatusPanel());
         Controls.Add(panel);
         Shown += (_, _) => RefreshStatus();

@@ -27,6 +27,7 @@ RenderNorth Display Switcher lets Windows create each working layout once, captu
 - Runs command-line and launcher activation silently with meaningful exit codes.
 - Logs actions and errors locally.
 - Detects whether the current topology matches Game Mode, Script Mode, or neither.
+- Includes an About dialog with RenderNorth project links and version information.
 - Requires no installer and collects no telemetry.
 
 ## Screenshots
@@ -34,6 +35,10 @@ RenderNorth Display Switcher lets Windows create each working layout once, captu
 ### Application
 
 ![Application window showing Game Mode status](docs/images/application-main-window.png)
+
+### About RenderNorth Display Switcher
+
+![About dialog showing version and RenderNorth links](docs/images/about-dialog.png)
 
 ### Example Windows layouts
 

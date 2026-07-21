@@ -14,6 +14,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 - Persistent last-switch result and successful-switch timestamp.
 - Rollback protection, post-apply topology verification, and local logging.
 - Public-release documentation and packaging.
+- About dialog with RenderNorth, version, GitHub, website, and future-update information.
 
 ### Verified
 
