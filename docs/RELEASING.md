@@ -12,4 +12,6 @@
 8. Verify the generated GitHub Release and its notes/assets before announcing it.
 9. Test an update from the previous installed version to the new GitHub Release.
 
+For v0.3.1 and later, also verify the three installed Start-menu shortcuts, the Desktop shortcut, stable Game/Script Stream Deck actions, persistent profiles, friendly user-facing asset labels, and shortcut cleanup during uninstall.
+
 The GitHub repository URL is configured once in `Services/UpdateService.cs`. If the owner is not `RenderNorth`, update `GitHubRepositoryUrl` before publishing.

@@ -4,6 +4,20 @@ All notable changes to RenderNorth Display Switcher are documented here.
 
 The project follows [Semantic Versioning](https://semver.org/).
 
+## [0.3.1] - 2026-07-21
+
+### Improved
+
+- Added stable installed Start-menu shortcuts for silent Game Mode and Script Mode Stream Deck actions.
+- Made the installer explicitly create the main Start-menu and Desktop shortcuts.
+- Moved installed profiles and logs outside Velopack's replaceable application-content directory and added best-effort legacy profile migration.
+- Simplified download guidance around the recommended Setup EXE and clearly labeled portable/manual-update edition.
+- Added first-run and release documentation for normal Windows users.
+
+### Preserved
+
+- The physically verified native display-switching engine and silent command behavior are unchanged.
+
 ## [0.3.0] - 2026-07-21
 
 ### Added

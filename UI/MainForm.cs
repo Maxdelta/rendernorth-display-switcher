@@ -106,9 +106,7 @@ internal sealed class MainForm : Form
 
     private void SaveProfile(ProfileKind kind)
     {
-        var profileName = kind == ProfileKind.Game ? "game.json" : "script.json";
-        var exists = File.Exists(Path.Combine(AppContext.BaseDirectory, "profiles", profileName));
-        if (exists && MessageBox.Show(this, $"Overwrite the saved {kind} Mode profile?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
+        if (_service.HasProfile(kind) && MessageBox.Show(this, $"Overwrite the saved {kind} Mode profile?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
         RunOperation(() => _service.Save(kind));
     }
 

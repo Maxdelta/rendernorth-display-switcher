@@ -45,3 +45,10 @@ The GUI compares the currently active source-to-target path topology against bot
 The installed edition uses Velopack 1.2.0 and the official public GitHub Releases source over HTTPS. Velopack owns feed parsing, package verification, download, apply, restart, install, and uninstall behavior; no custom executable downloader is used. Automatic checks occur only after normal GUI startup. Portable mode reports that automatic updates are unavailable.
 
 `Directory.Build.props` is the single version source. `Services/UpdateService.cs` contains the authoritative public update source: `https://github.com/Maxdelta/rendernorth-display-switcher`.
+# v0.3.1 installation decisions
+
+- Use Velopack's standard `Desktop,StartMenuRoot` shortcuts for the normal GUI.
+- Create Game and Script Start-menu shortcuts during Velopack install/update hooks. Both target the root-level Velopack execution stub with `--game` or `--script`, providing a stable non-versioned Stream Deck target.
+- Keep the dedicated launcher executables in every installed and portable package for compatibility, while recommending Start-menu shortcuts for installed Stream Deck setups.
+- Store installed profiles and logs under Velopack's root application directory in `UserData`, outside the replaceable `current` directory. Portable data remains beside the executable.
+- Present the friendly Setup EXE and labeled portable archive as the only normal user downloads; retain package/feed assets solely for updater operation.

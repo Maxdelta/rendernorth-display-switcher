@@ -6,7 +6,7 @@ on:
       version:
         description: Semantic version without the v prefix
         required: true
-        default: 0.3.0
+        default: 0.3.1
   push:
     tags: ["v[0-9]+.[0-9]+.[0-9]+"]
 
@@ -46,3 +46,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: dotnet tool run vpk upload github --repoUrl "https://github.com/${{ github.repository }}" --token "$env:GITHUB_TOKEN" --publish --merge --tag "v${{ steps.version.outputs.version }}" --releaseName "RenderNorth Display Switcher v${{ steps.version.outputs.version }}" --outputDir artifacts/velopack
+      - name: Upload friendly user downloads
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $version = '${{ steps.version.outputs.version }}'
+          gh release upload "v$version" `
+            "artifacts/velopack/RenderNorth-Display-Switcher-Setup-v$version.exe#Recommended - Setup Edition" `
+            "artifacts/velopack/RenderNorth-Display-Switcher-v$version-win-x64-Portable-Manual-Updates.zip#Advanced - Portable (Manual Updates)" `
+            "artifacts/velopack/SHA256SUMS.txt#SHA-256 Checksums" `
+            --repo "${{ github.repository }}" --clobber
+          gh release delete-asset "v$version" "RenderNorth.DisplaySwitcher-win-Setup.exe" --repo "${{ github.repository }}" --yes
+          gh release delete-asset "v$version" "RenderNorth.DisplaySwitcher-win-Portable.zip" --repo "${{ github.repository }}" --yes

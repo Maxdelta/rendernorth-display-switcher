@@ -6,6 +6,16 @@
 [![Latest GitHub Release](https://img.shields.io/github/v/release/Maxdelta/rendernorth-display-switcher)](https://github.com/Maxdelta/rendernorth-display-switcher/releases/latest)
 [![Total GitHub Downloads](https://img.shields.io/github/downloads/Maxdelta/rendernorth-display-switcher/total)](https://github.com/Maxdelta/rendernorth-display-switcher/releases)
 
+## DOWNLOAD FOR WINDOWS
+
+### For most users
+
+Download and run **RenderNorth-Display-Switcher-Setup-v0.3.1.exe** from the [latest GitHub Release](https://github.com/Maxdelta/rendernorth-display-switcher/releases/latest).
+
+- **Setup edition — recommended:** installs the GUI, adds Windows shortcuts, and supports optional in-app updates.
+- **Portable - Manual Updates:** intended for advanced/testing use; extract the complete ZIP and replace it manually when updating.
+- `.nupkg`, `RELEASES`, and `releases.win.json` are updater support files, not normal user downloads.
+
 **One-click display switching for dual-PC streamers using Elgato capture cards.**
 
 RenderNorth Display Switcher instantly restores saved Windows display layouts, so you do not have to open Windows Display Settings during a stream. It was built for dual-PC creators who need to change which monitor is mirrored to an Elgato capture card while keeping another display private.
@@ -20,11 +30,12 @@ It runs independently of OBS, Streamlabs, and DisplayFusion on the gaming PC. Th
 
 ## Quick Start
 
-1. [Install the Windows setup edition](#installation-and-updates).
-2. [Configure and save Game Mode](#saving-profiles).
-3. Configure and save Script Mode.
-4. [Add the two silent launchers to Stream Deck](#using-with-elgato-stream-deck).
-5. Press either button to switch the Elgato routing.
+1. Download and run the recommended Setup EXE above.
+2. Open **RenderNorth Display Switcher** from the Start menu.
+3. [Configure and save Game Mode](#saving-profiles).
+4. Configure and save Script Mode.
+5. [Add the stable installed shortcuts to Stream Deck](#using-with-elgato-stream-deck).
+6. Press either button to switch the Elgato routing.
 
 ## Why I Built This
 
@@ -97,7 +108,7 @@ The numbers assigned by Windows are examples only; yours may differ.
 
 ## Installation and Updates
 
-Download the current release from the [GitHub Releases page](https://github.com/Maxdelta/rendernorth-display-switcher/releases/latest).
+For most users, download and run the Setup EXE from the [GitHub Releases page](https://github.com/Maxdelta/rendernorth-display-switcher/releases/latest). The one-click installer creates **RenderNorth Display Switcher** shortcuts in the Start menu and on the desktop, then opens the GUI without command-line arguments.
 
 | Installed edition | Portable edition |
 |---|---|
@@ -110,7 +121,9 @@ Updates are never forced. The installed edition checks after the normal GUI star
 
 The initial public binaries are not Authenticode-signed, so Windows SmartScreen may appear. Verify that the download came from the official [Maxdelta repository](https://github.com/Maxdelta/rendernorth-display-switcher) before running it.
 
-Profiles and logs are created beside the application. Do not run the portable edition directly from inside its ZIP.
+Installed profiles and logs are stored in the stable application root outside Velopack's replaceable `current` directory, so they survive updates. Portable profiles and logs remain beside the application. Do not run the portable edition directly from inside its ZIP.
+
+See the [First Run Guide](docs/FIRST_RUN.md) for the complete initial setup sequence.
 
 ## Saving Profiles
 
@@ -139,14 +152,14 @@ Test both **Activate** buttons while watching the capture preview before using t
 The Stream Deck must be connected to the gaming PC running the utility.
 
 1. In Stream Deck, add **System → Open Application** for Game Mode.
-2. Select `RenderNorthGameMode.exe` and label the button **Game Mode**.
+2. Browse to the Windows Start-menu shortcut **RenderNorth Display Switcher - Game Mode** and label the button **Game Mode**. Its stable location is `%APPDATA%\Microsoft\Windows\Start Menu\Programs`.
 3. Add a second **System → Open Application** action.
-4. Select `RenderNorthScriptMode.exe` and label it **Script Mode**.
+4. Select the Start-menu shortcut **RenderNorth Display Switcher - Script Mode** and label it **Script Mode**.
 5. Optionally use the included icons from `assets/stream-deck`.
 
-The launchers switch profiles silently. No popup, console window, splash screen, or main application window appears. The Elgato feed may briefly go black while Windows renegotiates the display signal.
+These installed shortcuts target Velopack's stable, non-versioned application launcher and survive updates. They switch profiles silently: no popup, console window, splash screen, or main application window appears. The Elgato feed may briefly go black while Windows renegotiates the display signal.
 
-Keep `RenderNorthGameMode.exe`, `RenderNorthScriptMode.exe`, `RenderNorthDisplaySwitcher.exe`, and the accompanying runtime files together.
+The installed package also keeps `RenderNorthGameMode.exe` and `RenderNorthScriptMode.exe` alongside the main application. Portable users should point Stream Deck directly to those executables and keep the complete extracted folder together.
 
 Equivalent direct commands are:
 
@@ -176,7 +189,7 @@ Build output is written to `artifacts\build`.
 
 ```powershell
 .\publish.ps1
-.\release.ps1 -Version 0.3.0
+.\release.ps1 -Version 0.3.1
 ```
 
 The release script creates the Velopack installer/update assets and portable ZIP under `artifacts`. See [docs/RELEASING.md](docs/RELEASING.md) for the complete release workflow.
@@ -210,7 +223,7 @@ The current application remains usable. Check the internet connection and the [p
 ## Known Limitations
 
 - Windows 11 x64 only.
-- Exactly two named profiles in v0.3.0.
+- Exactly two named profiles in v0.3.1.
 - Profiles are tied to the machine and monitor identities on which they were saved.
 - Other capture-card models have not all been tested.
 - Portable builds do not self-update.

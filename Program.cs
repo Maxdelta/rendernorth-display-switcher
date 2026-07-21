@@ -9,7 +9,12 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
-        VelopackApp.Build().Run();
+        VelopackApp.Build()
+            .OnAfterInstallFastCallback(_ => InstalledIntegration.InstallOrRefresh())
+            .OnAfterUpdateFastCallback(_ => InstalledIntegration.InstallOrRefresh())
+            .OnBeforeUninstallFastCallback(_ => InstalledIntegration.RemoveShortcuts())
+            .Run();
+        AppPaths.Initialize();
         var automaticMode = args.Length > 0;
         var log = new AppLogger();
         using var singleInstance = new Mutex(true, "RenderNorthDisplaySwitcher", out var ownsMutex);

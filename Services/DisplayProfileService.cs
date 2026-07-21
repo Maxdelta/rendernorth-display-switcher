@@ -9,7 +9,7 @@ internal sealed class DisplayProfileService
 {
     private readonly AppLogger _log;
     private readonly JsonSerializerOptions _json = new() { WriteIndented = true, IncludeFields = true };
-    private string ProfilesFolder => Path.Combine(AppContext.BaseDirectory, "profiles");
+    private string ProfilesFolder => AppPaths.ProfilesFolder;
     private string StatusPath => Path.Combine(ProfilesFolder, "status.json");
 
     public DisplayProfileService(AppLogger log)
@@ -17,6 +17,8 @@ internal sealed class DisplayProfileService
         _log = log;
         Directory.CreateDirectory(ProfilesFolder);
     }
+
+    public bool HasProfile(ProfileKind kind) => File.Exists(ProfilePath(kind));
 
     public OperationResult Save(ProfileKind kind)
     {

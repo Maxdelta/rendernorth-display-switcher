@@ -3,7 +3,7 @@ namespace RenderNorth.DisplaySwitcher.Services;
 internal sealed class AppLogger
 {
     private readonly object _gate = new();
-    public string LogFolder { get; } = Path.Combine(AppContext.BaseDirectory, "logs");
+    public string LogFolder { get; } = AppPaths.LogsFolder;
     private string LogFile => Path.Combine(LogFolder, $"display-switcher-{DateTime.Now:yyyyMMdd}.log");
 
     public AppLogger() => Directory.CreateDirectory(LogFolder);
