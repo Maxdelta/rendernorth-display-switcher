@@ -1,5 +1,6 @@
 using RenderNorth.DisplaySwitcher.Services;
 using RenderNorth.DisplaySwitcher.UI;
+using Velopack;
 
 namespace RenderNorth.DisplaySwitcher;
 
@@ -8,6 +9,7 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        VelopackApp.Build().Run();
         var automaticMode = args.Length > 0;
         var log = new AppLogger();
         using var singleInstance = new Mutex(true, "RenderNorthDisplaySwitcher", out var ownsMutex);
@@ -50,7 +52,8 @@ internal static class Program
         AppDomain.CurrentDomain.UnhandledException += (_, e) => ShowFatal(log, e.ExceptionObject as Exception ?? new Exception("Unknown fatal error"));
 
         var service = new DisplayProfileService(log);
-        Application.Run(new MainForm(service, log));
+        var updates = new UpdateService(log);
+        Application.Run(new MainForm(service, updates, log));
         return 0;
     }
 

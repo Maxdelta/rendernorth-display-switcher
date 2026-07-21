@@ -11,7 +11,6 @@
     <PublishSingleFile>true</PublishSingleFile>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
-    <Version>0.2.0</Version>
     <Authors>RenderNorth</Authors>
     <Product>RenderNorth Display Switcher</Product>
   </PropertyGroup>

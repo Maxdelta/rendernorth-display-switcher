@@ -14,7 +14,6 @@
     <PublishSingleFile>true</PublishSingleFile>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <InvariantGlobalization>true</InvariantGlobalization>
-    <Version>0.2.0</Version>
     <Authors>RenderNorth</Authors>
     <Product>RenderNorth Display Switcher</Product>
     <Description>Native Windows display-profile switching for dual-PC streaming setups.</Description>
@@ -23,5 +22,8 @@
   <ItemGroup>
     <Compile Remove="Launchers\**\*.cs" />
     <None Remove="Launchers\**\*" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Velopack" Version="1.2.0" />
   </ItemGroup>
 </Project>

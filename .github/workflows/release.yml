@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Semantic version without the v prefix
+        required: true
+        default: 0.3.0
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+
+permissions:
+  contents: write
+
+jobs:
+  windows-release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Resolve version
+        id: version
+        shell: pwsh
+        run: |
+          $version = if ('${{ github.event_name }}' -eq 'workflow_dispatch') { '${{ inputs.version }}' } else { '${{ github.ref_name }}'.TrimStart('v') }
+          "version=$version" >> $env:GITHUB_OUTPUT
+      - name: Verify authoritative version
+        shell: pwsh
+        run: |
+          [xml]$props = Get-Content Directory.Build.props
+          if ($props.Project.PropertyGroup.Version -ne '${{ steps.version.outputs.version }}') { throw 'Tag/input does not match Directory.Build.props.' }
+      - name: Restore tools and build
+        shell: pwsh
+        run: |
+          dotnet tool restore
+          ./build.ps1
+      - name: Package installer, update feed, and portable ZIP
+        shell: pwsh
+        run: ./release.ps1 -Version '${{ steps.version.outputs.version }}'
+      # Velopack uploads the installer, packages, feed, portable ZIP, and checksums using GITHUB_TOKEN.
+      - name: Publish GitHub Release
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet tool run vpk upload github --repoUrl "https://github.com/${{ github.repository }}" --token "$env:GITHUB_TOKEN" --publish --merge --tag "v${{ steps.version.outputs.version }}" --releaseName "RenderNorth Display Switcher v${{ steps.version.outputs.version }}" --outputDir artifacts/velopack

@@ -30,3 +30,15 @@
 - [ ] Add profile export/import with explicit hardware validation
 - [ ] Add optional hotkeys
 - [ ] Add code signing and an installer if distribution expands
+
+## v0.3.0
+
+- [x] Add polished RenderNorth GUI and profile cards
+- [x] Add authoritative semantic version source
+- [x] Integrate Velopack startup and update service
+- [x] Keep update work out of silent switching modes
+- [x] Add installer/update/portable packaging and GitHub Actions workflow
+- [x] Add release instructions and Stream Deck icons
+- [ ] Configure the final GitHub owner if it differs from `RenderNorth`
+- [ ] Test a real GitHub update from an older installed release
+- [ ] Add Authenticode signing certificate

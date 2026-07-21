@@ -1,16 +1,17 @@
 using System.Diagnostics;
+using RenderNorth.DisplaySwitcher.Services;
 
 namespace RenderNorth.DisplaySwitcher.UI;
 
 internal sealed class AboutForm : Form
 {
-    private const string GitHubUrl = "https://github.com/RenderNorth/rendernorth-display-switcher";
+    private const string GitHubUrl = UpdateService.GitHubRepositoryUrl;
     private const string WebsiteUrl = "https://www.rendernorth.com/";
 
-    public AboutForm()
+    public AboutForm(Func<Task> checkForUpdates)
     {
         Text = "About RenderNorth Display Switcher";
-        ClientSize = new Size(370, 245);
+        ClientSize = new Size(370, 275);
         FormBorderStyle = FormBorderStyle.FixedDialog;
         StartPosition = FormStartPosition.CenterParent;
         MaximizeBox = false;
@@ -24,26 +25,28 @@ internal sealed class AboutForm : Form
             AutoSize = true,
             Location = new Point(30, 25)
         };
-        var version = new Label { Text = "Version 0.2.0", AutoSize = true, Location = new Point(31, 65) };
+        var version = new Label { Text = $"Version {AppVersion.Current}", AutoSize = true, Location = new Point(31, 65) };
         var creator = new Label { Text = "Created by RenderNorth", AutoSize = true, Location = new Point(31, 92) };
         var github = Link("GitHub", GitHubUrl, new Point(31, 128));
         var website = Link("Website", WebsiteUrl, new Point(105, 128));
+        var license = Link("MIT License", GitHubUrl + "/blob/main/LICENSE", new Point(175, 128));
+        var copyright = new Label { Text = "Copyright 2026 RenderNorth", AutoSize = true, Location = new Point(31, 154) };
         var updates = new Button
         {
-            Text = "Check for Updates (future)",
-            Enabled = false,
-            Location = new Point(31, 164),
+            Text = "Check for Updates",
+            Location = new Point(31, 181),
             Size = new Size(205, 32)
         };
+        updates.Click += async (_, _) => { updates.Enabled = false; await checkForUpdates(); updates.Enabled = true; };
         var close = new Button
         {
             Text = "Close",
             DialogResult = DialogResult.OK,
-            Location = new Point(260, 201),
+            Location = new Point(260, 235),
             Size = new Size(80, 28)
         };
 
-        Controls.AddRange([title, version, creator, github, website, updates, close]);
+        Controls.AddRange([title, version, creator, github, website, license, copyright, updates, close]);
         AcceptButton = close;
         CancelButton = close;
     }

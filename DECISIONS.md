@@ -39,3 +39,9 @@ The public release bundles one shared self-contained .NET runtime beside the two
 ## Configuration-derived GUI status
 
 The GUI compares the currently active source-to-target path topology against both saved profiles. It does not infer the current mode from the last button pressed. The last result and successful timestamp are persisted beside the profiles so automatic Stream Deck activity is visible the next time the GUI opens.
+
+## Velopack and GitHub Releases
+
+The installed edition uses Velopack 1.2.0 and the official public GitHub Releases source over HTTPS. Velopack owns feed parsing, package verification, download, apply, restart, install, and uninstall behavior; no custom executable downloader is used. Automatic checks occur only after normal GUI startup. Portable mode reports that automatic updates are unavailable.
+
+`Directory.Build.props` is the single version source. `Services/UpdateService.cs` contains the one repository URL constant that must be updated if the final GitHub owner differs from `RenderNorth`.

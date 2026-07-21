@@ -5,7 +5,7 @@
 RenderNorth Display Switcher saves two known-good Windows display configurations and restores either one from a small desktop app, a silent command, or dedicated Elgato Stream Deck launchers. It uses the native Windows display-configuration APIs and does not require OBS, Streamlabs, or DisplayFusion.
 
 > **Platform:** Windows 11 x64<br>
-> **Release:** v0.2.0<br>
+> **Release:** v0.3.0<br>
 > **Brand:** RenderNorth
 
 ![RenderNorth Display Switcher main window](docs/images/application-main-window.png)
@@ -50,12 +50,16 @@ The numbers shown by Windows are examples only; your numbering may differ.
 
 ## Installation
 
-1. Download `RenderNorth-Display-Switcher-v0.2.0-win-x64.zip` from the GitHub release.
+1. Download the v0.3.0 installer from the GitHub release (recommended), or the portable ZIP.
 2. Right-click the ZIP, choose **Extract All**, and keep the extracted files together.
 3. Run `RenderNorthDisplaySwitcher.exe`.
 4. If Windows SmartScreen appears, verify that the file came from the official RenderNorth release before choosing **More info > Run anyway**.
 
-The release ZIP includes the Windows x64 runtime files needed by the small launcher executables, while the main application is published as a self-contained executable. End users do not need to install .NET separately. Keep the complete extracted release folder together.
+The **installed edition** is recommended and supports automatic updates through official RenderNorth GitHub Releases. The **portable ZIP** includes required runtime files and does not self-update; download a newer portable ZIP manually. Neither edition requires a separate .NET installation.
+
+## Automatic updates
+
+The installed edition checks GitHub Releases after the normal GUI opens without blocking startup. It never checks, downloads, installs, or displays update UI during `--game`, `--script`, or Stream Deck switching. Use **Utilities > Check for Updates** for a manual check. Updates are optional: review the available version and notes, choose **Download and Install**, then confirm restart. Failures leave the application usable and are reported non-blockingly in Status and the local log.
 
 Profiles and logs are created beside the application, so install it in a folder where your Windows account can write files. Do not run it directly from inside the ZIP.
 
@@ -137,7 +141,7 @@ Create the application publish output:
 .\publish.ps1
 ```
 
-Create the clean v0.2.0 end-user folder and ZIP:
+Create the v0.3.0 portable ZIP plus Velopack installer/update assets:
 
 ```powershell
 .\release.ps1
@@ -172,7 +176,7 @@ This is normally harmless because the utility validates monitor device paths, no
 - Windows 11 x64 only.
 - Exactly two named profiles: Game Mode and Script Mode.
 - Profiles are tied to the machine and connected monitor identities on which they were saved.
-- No installer, automatic updater, code-signing certificate, or notification-area mode in v0.2.0.
+- Portable builds do not self-update. The initial v0.3.0 installer is not code-signed unless a signing certificate is supplied to the release pipeline.
 - Windows and GPU drivers may adjust unsupported timings when applying a saved layout.
 - Display switching must be tested on each target hardware setup before production use.
 
@@ -196,7 +200,7 @@ No. The application uses the normal user-level Windows display configuration API
 
 ### Can I create more profiles?
 
-Not in v0.2.0. The release intentionally focuses on one Game Mode and one Script Mode.
+Not in v0.3.0. The release intentionally focuses on one Game Mode and one Script Mode.
 
 ## Privacy
 
