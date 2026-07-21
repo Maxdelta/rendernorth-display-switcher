@@ -39,6 +39,12 @@ No command-line argument is needed in Stream Deck. Keep these three files togeth
 
 The original `--game` and `--script` command-line options remain supported for scripts and terminals.
 
+### Automatic Mode
+
+Starting the main application with `--game` or `--script` runs in Automatic Mode. This mode switches the requested profile without showing a window, splash screen, or message box, then exits as soon as the operation finishes. Failures are written to the local `logs` folder and return a non-zero process exit code without interrupting the screen. The dedicated Stream Deck launchers use Automatic Mode automatically.
+
+Starting `RenderNorthDisplaySwitcher.exe` without arguments continues to open the normal interactive window.
+
 ## Build and publish
 
 Requirements: Windows 11 and the .NET 8 SDK.

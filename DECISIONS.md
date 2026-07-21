@@ -27,3 +27,7 @@ WinForms provides the smallest built-in .NET 8 Windows desktop surface for five 
 ## Dedicated Stream Deck launchers
 
 Two framework-dependent, single-file `WinExe` launchers sit beside the standalone main application. Each resolves the main executable from its own directory, starts the appropriate command, and exits immediately. `WinExe` prevents a console window, while avoiding two additional copies of the large self-contained .NET runtime keeps the launchers small.
+
+## Headless automatic operation
+
+Any argument-based start is treated as Automatic Mode. Recognized profile arguments apply and exit without initializing or displaying the GUI. Invalid arguments, duplicate instances, and switching failures are logged and return non-zero exit codes without message boxes. No-argument startup retains the interactive behavior.
