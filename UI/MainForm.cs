@@ -117,17 +117,18 @@ internal sealed class MainForm : Form
 
     private Control EnvironmentCard(EnvironmentDefinition environment)
     {
-        var panel = Panel(Card); panel.Dock = DockStyle.None; panel.Width = Math.Max(680, _environmentList.ClientSize.Width - 24); panel.Height = 112; panel.Margin = new Padding(0, 0, 0, 9);
+        var panel = Panel(Card); panel.Dock = DockStyle.None; panel.Width = Math.Max(680, _environmentList.ClientSize.Width - 24); panel.Height = 126; panel.Margin = new Padding(0, 0, 0, 9);
         var accent = CategoryColor(environment.Category); panel.Controls.Add(new Panel { BackColor = accent, Width = 5, Dock = DockStyle.Left });
         var icon = LabelText(IconLabel(environment.Icon), 22, true); icon.BackColor = Color.FromArgb(45, accent.R, accent.G, accent.B); icon.Location = new Point(20, 25); icon.Size = new Size(58, 58); icon.TextAlign = ContentAlignment.MiddleCenter;
         var name = LabelText(environment.Name, 13, true); name.Location = new Point(72, 13); name.Size = new Size(330, 25);
         var details = LabelText($"{environment.Category ?? "Custom"}  •  {environment.Description ?? "Display workspace"}", 9); details.ForeColor = Muted; details.Location = new Point(73, 42); details.Size = new Size(350, 35);
-        var preview = LabelText(Preview(environment.Category), 9, true); preview.ForeColor = accent; preview.Location = new Point(300, 80); preview.AutoSize = true;
-        var activate = Button("Activate", Accent, async (_, _) => await ActivateAsync(environment.Id)); activate.Location = new Point(430, 24); activate.Size = new Size(112, 42);
-        var edit = Button("Edit", Color.FromArgb(53, 64, 70), (_, _) => Edit(environment)); edit.Location = new Point(550, 24); edit.Size = new Size(74, 42);
+        var preview = new RnDisplayPreview { Category = environment.Category ?? "Custom", Location = new Point(300, 76) }; panel.Controls.Add(preview);
+        var activate = Button("Activate", Accent, async (_, _) => await ActivateAsync(environment.Id)); activate.Location = new Point(430, 35); activate.Size = new Size(112, 42);
+        var shortcut = Button("Stream Deck", accent, (_, _) => CreateShortcut(() => _shortcuts.CreateStartMenu(environment))); shortcut.Location = new Point(550, 35); shortcut.Size = new Size(102, 42);
+        var edit = Button("•••", Color.FromArgb(53, 64, 70), (_, _) => Edit(environment)); edit.Location = new Point(660, 35); edit.Size = new Size(42, 42);
         Button? more = null;
-        more = Button("•••", Color.FromArgb(53, 64, 70), (_, _) => ShowMore(environment, more!)); more.Location = new Point(632, 24); more.Size = new Size(48, 42);
-        panel.Controls.AddRange([icon, name, details, preview, activate, edit, more]); return panel;
+        more = Button("Manage", Color.FromArgb(53, 64, 70), (_, _) => ShowMore(environment, more!)); more.Location = new Point(660, 82); more.Size = new Size(74, 28);
+        panel.Controls.AddRange([icon, name, details, preview, activate, shortcut, edit, more]); return panel;
     }
 
     private async Task ActivateAsync(Guid id)
@@ -222,9 +223,9 @@ internal sealed class MainForm : Form
     private void OnUpdateStatusChanged(UpdateStatus status) { if (InvokeRequired) { BeginInvoke(() => OnUpdateStatusChanged(status)); return; } _updateStatus.Text = "Update status: " + status.Message; _downloadButton.Visible = status.State == UpdateState.Available; }
     private void ShowError(string message, Exception exception) { _log.Error(message, exception); MessageBox.Show(this, $"{message}\n\n{exception.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error); }
     private void ShowWarning(string message) => MessageBox.Show(this, message, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-    private static Panel Panel(Color color) => new() { Dock = DockStyle.Fill, BackColor = color };
+    private static Panel Panel(Color color) => new RnCard { Dock = DockStyle.Fill, BackColor = color };
     private static Label LabelText(string text, float size, bool bold = false) => new() { Text = text, ForeColor = Color.White, Font = new Font("Segoe UI", size, bold ? FontStyle.Bold : FontStyle.Regular), AutoEllipsis = true };
-    private static Button Button(string text, Color color, EventHandler action) { var button = new Button { Text = text, BackColor = color, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand }; button.FlatAppearance.BorderSize = 0; button.Click += action; return button; }
+    private static Button Button(string text, Color color, EventHandler action) { var button = new RnButton(color) { Text = text }; button.Click += action; return button; }
     private static string IconLabel(string icon) => icon.ToLowerInvariant() switch { "gamepad" => "🎮", "script" => "🎥", "code" => "💻", "work" => "🧰", "creative" => "🎨", "presentation" => "📺", "travel" => "✈", "camera" => "📷", "microphone" => "🎙", "monitor" => "🖥", _ => "◆" };
     private static Color CategoryColor(string? category) => category?.ToLowerInvariant() switch { "gaming" => Gaming, "streaming" => Streaming, "development" => Development, "presentation" => Presentation, _ => Accent };
     private static string Preview(string? category) => category?.ToLowerInvariant() switch { "gaming" => "▣══▣  3 displays  •  Elgato ready", "streaming" => "▣──▣  3 displays  •  Capture ready", "development" => "▣  ▣  ▣  3 displays  •  Extended", _ => "▣  ▣  Display setup saved" };
