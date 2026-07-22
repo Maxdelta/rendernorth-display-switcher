@@ -101,8 +101,7 @@ internal sealed class MainForm : Form
         foreach (var environment in collection.Environments.OrderBy(item => item.SortOrder).ThenBy(item => item.Name)) _environmentList.Controls.Add(EnvironmentCard(environment));
         if (collection.Environments.Count == 0)
         {
-            var empty = LabelText("✦  Welcome to RenderNorth Environments\n\nYour PC should adapt to what you're doing.\nCreate your first environment by saving your current display setup.\n\nPopular starting points:  Gaming   •   Development   •   Streaming   •   Presentation", 11);
-            empty.ForeColor = Color.White; empty.Size = new Size(690, 118); empty.TextAlign = ContentAlignment.MiddleCenter; _environmentList.Controls.Add(empty);
+            _environmentList.Controls.Add(EmptyState());
         }
         _environmentList.ResumeLayout(); _lastResult.Text = "Last activation: " + collection.ActivationStatus.LastResult;
         _lastSuccessful.Text = "Last successful activation: " + (collection.ActivationStatus.LastSuccessfulAt?.ToLocalTime().ToString("g") ?? "None recorded");
@@ -129,6 +128,23 @@ internal sealed class MainForm : Form
         Button? more = null;
         more = Button("Manage", Color.FromArgb(53, 64, 70), (_, _) => ShowMore(environment, more!)); more.Location = new Point(660, 82); more.Size = new Size(74, 28);
         panel.Controls.AddRange([icon, name, details, preview, activate, shortcut, edit, more]); return panel;
+    }
+
+    private Control EmptyState()
+    {
+        var panel = new RnCard { Width = Math.Max(680, _environmentList.ClientSize.Width - 24), Height = 270, BackColor = Card, Margin = new Padding(0, 0, 0, 9), Padding = new Padding(22) };
+        var star = LabelText("✦", 24, true); star.ForeColor = Accent; star.Location = new Point(22, 18); star.AutoSize = true;
+        var title = LabelText("Welcome to RenderNorth Environments", 18, true); title.Location = new Point(58, 18); title.AutoSize = true;
+        var subtitle = LabelText("Your PC should adapt to what you're doing.\nSave your current display setup to create your first environment.", 10); subtitle.ForeColor = Muted; subtitle.Location = new Point(60, 52); subtitle.Size = new Size(560, 38);
+        panel.Controls.AddRange([star, title, subtitle]);
+        var ideas = new[] { ("🎮", "Gaming", Gaming), ("💻", "Development", Development), ("🎥", "Streaming", Streaming), ("📺", "Presentation", Presentation) };
+        for (var i = 0; i < ideas.Length; i++)
+        {
+            var (icon, name, color) = ideas[i]; var card = new RnCard { BackColor = Color.FromArgb(44, 51, 57), BorderColor = Color.FromArgb(70, 80, 88), Location = new Point(22 + i * 156, 108), Size = new Size(142, 72), Cursor = Cursors.Hand };
+            var glyph = LabelText(icon, 18, true); glyph.Location = new Point(12, 14); glyph.AutoSize = true; var label = LabelText(name, 9, true); label.ForeColor = color; label.Location = new Point(48, 27); label.AutoSize = true; card.Controls.AddRange([glyph, label]); card.Click += (_, _) => EditNew(true); glyph.Click += (_, _) => EditNew(true); label.Click += (_, _) => EditNew(true); panel.Controls.Add(card);
+        }
+        var hint = LabelText("Capture a setup to get started, or create an environment from scratch.", 9); hint.ForeColor = Muted; hint.Location = new Point(22, 202); hint.AutoSize = true; panel.Controls.Add(hint);
+        return panel;
     }
 
     private async Task ActivateAsync(Guid id)
