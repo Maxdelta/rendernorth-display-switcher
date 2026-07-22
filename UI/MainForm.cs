@@ -70,7 +70,7 @@ internal sealed class MainForm : Form
             Button("New Environment", Accent, (_, _) => EditNew(false)),
             Button("Capture Current Setup", Color.FromArgb(35, 174, 108), (_, _) => EditNew(true)),
             Button("Identify Displays", Color.FromArgb(53, 64, 70), Identify),
-            Button("Settings", Color.FromArgb(53, 64, 70), (_, _) => new AboutForm(() => _updates.CheckAsync()).ShowDialog(this))
+            Button("Settings", Color.FromArgb(53, 64, 70), (_, _) => new SettingsForm(_updates, _log).ShowDialog(this))
         };
         for (var index = 0; index < actions.Length; index++) { actions[index].Size = new Size(166, 38); actions[index].Location = new Point(index * 174, 8); panel.Controls.Add(actions[index]); }
         return panel;
@@ -125,9 +125,9 @@ internal sealed class MainForm : Form
 
     private async Task ActivateAsync(Guid id)
     {
-        UseWaitCursor = true;
+        UseWaitCursor = true; _environmentList.Enabled = false;
         try { var result = await _manager.ActivateAsync(id); _lastResult.Text = "Last activation: " + result.Message; _lastResult.ForeColor = result.Success ? Color.LightGreen : Color.Salmon; await RefreshAsync(); }
-        finally { UseWaitCursor = false; }
+        finally { _environmentList.Enabled = true; UseWaitCursor = false; }
     }
 
     private void EditNew(bool capture)
@@ -194,7 +194,11 @@ internal sealed class MainForm : Form
     private void Delete(EnvironmentDefinition environment)
     {
         if (MessageBox.Show(this, $"Delete '{environment.Name}'?\n\nExisting shortcuts for this environment will stop working.", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
-        var result = _manager.Delete(environment.Id); if (!result.Success) ShowWarning(result.Message); _ = RefreshAsync();
+        var removeShortcuts = MessageBox.Show(this, "Also delete managed Desktop and Start menu shortcuts?\n\nUnmanaged shortcuts will not be touched.", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
+        var result = _manager.Delete(environment.Id);
+        if (!result.Success) { ShowWarning(result.Message); return; }
+        if (removeShortcuts) try { _shortcuts.DeleteManaged(environment.Id); } catch (Exception exception) { ShowError("The environment was deleted, but managed shortcuts could not be removed.", exception); }
+        _ = RefreshAsync();
     }
 
     private void Identify(object? sender, EventArgs args)
@@ -214,6 +218,6 @@ internal sealed class MainForm : Form
     private static Panel Panel(Color color) => new() { Dock = DockStyle.Fill, BackColor = color };
     private static Label LabelText(string text, float size, bool bold = false) => new() { Text = text, ForeColor = Color.White, Font = new Font("Segoe UI", size, bold ? FontStyle.Bold : FontStyle.Regular), AutoEllipsis = true };
     private static Button Button(string text, Color color, EventHandler action) { var button = new Button { Text = text, BackColor = color, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand }; button.FlatAppearance.BorderSize = 0; button.Click += action; return button; }
-    private static string IconLabel(string icon) => icon.ToLowerInvariant() switch { "gamepad" => "GAME", "script" => "LIVE", "code" => "DEV", "work" => "WORK", "creative" => "EDIT", "presentation" => "SHOW", "travel" => "GO", _ => "ENV" };
+    private static string IconLabel(string icon) => icon.ToLowerInvariant() switch { "gamepad" => "🎮", "script" => "🎥", "code" => "💻", "work" => "🧰", "creative" => "🎨", "presentation" => "📺", "travel" => "✈", "camera" => "📷", "microphone" => "🎙", "monitor" => "🖥", _ => "◆" };
     private static EnvironmentDefinition Clone(EnvironmentDefinition source) => new() { Id = source.Id, Name = source.Name, Description = source.Description, Icon = source.Icon, Category = source.Category, Accent = source.Accent, Tags = [.. source.Tags], CreatedAt = source.CreatedAt, UpdatedAt = source.UpdatedAt, IsFavorite = source.IsFavorite, SortOrder = source.SortOrder, LegacyAliases = [.. source.LegacyAliases], Modules = source.Modules.Select(module => module.Clone()).ToList(), Metadata = new Dictionary<string, string>(source.Metadata, StringComparer.OrdinalIgnoreCase) };
 }

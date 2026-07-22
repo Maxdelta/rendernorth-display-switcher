@@ -67,3 +67,12 @@ Verification on this review:
 - v0.4.0 — not published; package identity, executable name, install directory, updater identity, repository, and feed were not changed.
 
 Next product gate: release-readiness review and explicit owner approval before versioning, tagging, pushing, publishing, or changing the update feed.
+
+## RN-014 Final Product Polish
+
+- Replaced the misleading Settings-to-About behavior with a lightweight Settings window covering General, Updates, Logging, Diagnostics, Shortcut Management, and About.
+- Added activation busy-state protection by disabling the environment list during activation and restoring it afterward.
+- Replaced placeholder environment text labels with a consistent built-in glyph mapping.
+- Added an explicit managed-shortcut cleanup choice to environment deletion; unmanaged shortcuts are never touched.
+- Build/test verification: `build.ps1` passed with 43 tests, 0 warnings, and 0 errors.
+- No display-engine, architecture, package identity, updater, version, or release-feed changes were made.
