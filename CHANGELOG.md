@@ -4,6 +4,18 @@ All notable changes to RenderNorth Display Switcher are documented here.
 
 The project follows [Semantic Versioning](https://semver.org/).
 
+## [0.3.2] - 2026-07-21
+
+### Fixed
+
+- Installed Game Mode and Script Mode launcher executables now work while the normal GUI is open.
+- Both launchers resolve `RenderNorthDisplaySwitcher.exe` from their own `AppContext.BaseDirectory` and log startup, exit codes, and exceptions locally.
+- Launcher processes remain silent and use direct no-console process startup.
+
+### Preserved
+
+- The verified native display-profile capture, application, validation, and rollback engine is unchanged.
+
 ## [0.3.1] - 2026-07-21
 
 ### Improved

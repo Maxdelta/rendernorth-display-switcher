@@ -10,7 +10,7 @@
 
 ### For most users
 
-Download and run **RenderNorth-Display-Switcher-Setup-v0.3.1.exe** from the [latest GitHub Release](https://github.com/Maxdelta/rendernorth-display-switcher/releases/latest).
+Download and run **RenderNorth-Display-Switcher-Setup-v0.3.2.exe** from the [latest GitHub Release](https://github.com/Maxdelta/rendernorth-display-switcher/releases/latest).
 
 - **Setup edition — recommended:** installs the GUI, adds Windows shortcuts, and supports optional in-app updates.
 - **Portable - Manual Updates:** intended for advanced/testing use; extract the complete ZIP and replace it manually when updating.
@@ -189,7 +189,7 @@ Build output is written to `artifacts\build`.
 
 ```powershell
 .\publish.ps1
-.\release.ps1 -Version 0.3.1
+.\release.ps1 -Version 0.3.2
 ```
 
 The release script creates the Velopack installer/update assets and portable ZIP under `artifacts`. See [docs/RELEASING.md](docs/RELEASING.md) for the complete release workflow.
@@ -223,7 +223,7 @@ The current application remains usable. Check the internet connection and the [p
 ## Known Limitations
 
 - Windows 11 x64 only.
-- Exactly two named profiles in v0.3.1.
+- Exactly two named profiles in v0.3.2.
 - Profiles are tied to the machine and monitor identities on which they were saved.
 - Other capture-card models have not all been tested.
 - Portable builds do not self-update.

@@ -17,15 +17,6 @@ internal static class Program
         AppPaths.Initialize();
         var automaticMode = args.Length > 0;
         var log = new AppLogger();
-        using var singleInstance = new Mutex(true, "RenderNorthDisplaySwitcher", out var ownsMutex);
-        if (!ownsMutex)
-        {
-            const string message = "RenderNorth Display Switcher is already running.";
-            log.Error(message);
-            if (!automaticMode)
-                MessageBox.Show(message, "RenderNorth Display Switcher");
-            return 3;
-        }
 
         if (automaticMode)
         {
@@ -49,6 +40,15 @@ internal static class Program
                 log.Error("Unhandled automatic-mode failure", exception);
                 return 1;
             }
+        }
+
+        using var singleInstance = new Mutex(true, "RenderNorthDisplaySwitcher", out var ownsMutex);
+        if (!ownsMutex)
+        {
+            const string message = "RenderNorth Display Switcher is already running.";
+            log.Error(message);
+            MessageBox.Show(message, "RenderNorth Display Switcher");
+            return 3;
         }
 
         ApplicationConfiguration.Initialize();

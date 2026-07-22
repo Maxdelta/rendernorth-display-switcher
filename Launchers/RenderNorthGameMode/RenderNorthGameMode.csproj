@@ -14,4 +14,7 @@
     <Authors>RenderNorth</Authors>
     <Product>RenderNorth Display Switcher</Product>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\LauncherCore.cs" Link="LauncherCore.cs" />
+  </ItemGroup>
 </Project>
