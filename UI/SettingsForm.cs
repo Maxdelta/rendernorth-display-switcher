@@ -25,14 +25,14 @@ internal sealed class SettingsForm : Form
         sections.Controls.Add(Section("UPDATES", "Installed edition checks GitHub Releases. Portable edition requires manual updates."));
         sections.Controls.Add(Section("LOGGING", $"Logs are stored locally in {_log.LogFolder}."));
         sections.Controls.Add(Section("DIAGNOSTICS", "Use Identify Displays from the main window to review connected monitor identities."));
-        var shortcuts = new Button { Text = "Open Shortcut Folder", AutoSize = true, BackColor = Color.FromArgb(53, 64, 70), ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Anchor = AnchorStyles.Right };
-        shortcuts.FlatAppearance.BorderSize = 0; shortcuts.Click += (_, _) => OpenShortcutFolder();
-        var shortcutPanel = new Panel { Dock = DockStyle.Fill }; shortcutPanel.Controls.Add(Section("SHORTCUT MANAGEMENT", "Environment shortcuts remain stable across updates and renames.")); shortcuts.Location = new Point(300, 9); shortcutPanel.Controls.Add(shortcuts); sections.Controls.Add(shortcutPanel);
+        sections.Controls.Add(Section("SHORTCUT MANAGEMENT", "Environment shortcuts remain stable across updates and renames."));
         var about = new Button { Text = "About", Location = new Point(24, 374), Size = new Size(100, 32), BackColor = Color.FromArgb(53, 64, 70), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
         about.FlatAppearance.BorderSize = 0; about.Click += (_, _) => new AboutForm(() => _updates.CheckAsync()).ShowDialog(this);
+        var shortcuts = new Button { Text = "Open Shortcut Folder", Location = new Point(136, 374), Size = new Size(190, 32), BackColor = Color.FromArgb(53, 64, 70), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
+        shortcuts.FlatAppearance.BorderSize = 0; shortcuts.Click += (_, _) => OpenShortcutFolder();
         var close = new Button { Text = "Close", DialogResult = DialogResult.OK, Location = new Point(396, 374), Size = new Size(100, 32), BackColor = Color.FromArgb(38, 198, 190), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
         close.FlatAppearance.BorderSize = 0;
-        Controls.AddRange([title, intro, sections, about, close]); AcceptButton = close; CancelButton = close;
+        Controls.AddRange([title, intro, sections, about, shortcuts, close]); AcceptButton = close; CancelButton = close;
     }
 
     private static Label Section(string heading, string body) => new() { Text = $"{heading}\n{body}", ForeColor = Color.White, Dock = DockStyle.Fill, AutoEllipsis = true, Padding = new Padding(0, 4, 0, 0) };
