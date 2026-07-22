@@ -14,12 +14,22 @@ internal class RnCard : Panel
         SetStyle(ControlStyles.ResizeRedraw | ControlStyles.UserPaint | ControlStyles.SupportsTransparentBackColor, true);
         MouseEnter += (_, _) => { Hovered = true; Invalidate(); };
         MouseLeave += (_, _) => { Hovered = false; Invalidate(); };
+        Padding = new Padding(8);
+    }
+
+    protected override void OnSizeChanged(EventArgs e)
+    {
+        base.OnSizeChanged(e);
+        var safe = new Rectangle(2, 2, Math.Max(1, Width - 5), Math.Max(1, Height - 5));
+        using var path = RoundedPath(safe, Math.Min(Radius, Math.Max(2, Math.Min(Width, Height) / 4)));
+        Region = new Region(path);
     }
 
     protected override void OnPaintBackground(PaintEventArgs e)
     {
         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-        using var path = RoundedPath(ClientRectangle, Radius);
+        var safe = new Rectangle(2, 2, Math.Max(1, ClientSize.Width - 5), Math.Max(1, ClientSize.Height - 5));
+        using var path = RoundedPath(safe, Math.Min(Radius, Math.Max(2, Math.Min(Width, Height) / 4)));
         using var brush = new SolidBrush(BackColor);
         using var pen = new Pen(Hovered ? Color.FromArgb(90, BorderColor) : BorderColor, 1);
         e.Graphics.FillPath(brush, path); e.Graphics.DrawPath(pen, path);
