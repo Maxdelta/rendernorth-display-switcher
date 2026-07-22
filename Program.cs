@@ -1,3 +1,5 @@
+using RenderNorth.DisplaySwitcher.Domain.Modules;
+using RenderNorth.DisplaySwitcher.Modules.Display;
 using RenderNorth.DisplaySwitcher.Services;
 using RenderNorth.DisplaySwitcher.UI;
 using Velopack;
@@ -15,47 +17,38 @@ internal static class Program
             .OnBeforeUninstallFastCallback(_ => InstalledIntegration.RemoveShortcuts())
             .Run();
         AppPaths.Initialize();
-        var automaticMode = args.Length > 0;
         var log = new AppLogger();
 
-        if (automaticMode)
+        try
         {
-            var command = args.Length == 1 ? args[0].ToLowerInvariant() : "";
-            if (command is not ("--game" or "--script"))
-            {
-                log.Error($"Invalid automatic-mode arguments: {string.Join(' ', args)}");
-                return 2;
-            }
-
-            try
-            {
-                var profile = command == "--game" ? ProfileKind.Game : ProfileKind.Script;
-                var result = new DisplayProfileService(log).Activate(profile);
-                if (!result.Success)
-                    log.Error($"Automatic {profile} Mode activation failed: {result.Message.Replace(Environment.NewLine, " | ")}");
-                return result.Success ? 0 : 1;
-            }
-            catch (Exception exception)
-            {
-                log.Error("Unhandled automatic-mode failure", exception);
-                return 1;
-            }
+            var repository = new EnvironmentRepository();
+            new LegacyMigrationService(repository, AppPaths.DataFolder, log).MigrateIfNeeded();
+            var registry = new EnvironmentModuleRegistry();
+            registry.Register(DisplayModule.Type, () => new DisplayModule(new DisplayModuleService()));
+            var manager = new EnvironmentManager(repository, registry, log);
+            var command = new CommandLineService(manager, log).ExecuteAsync(args).GetAwaiter().GetResult();
+            if (!command.ShowGui) return command.ExitCode;
+        }
+        catch (Exception exception)
+        {
+            log.Error("Environment initialization or command execution failed", exception);
+            if (args.Length > 0) return CommandLineService.ActivationFailedExitCode;
+            MessageBox.Show($"RenderNorth Environments could not initialize.\n\n{exception.Message}\n\nSee: {log.LogFolder}",
+                "RenderNorth Environments", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return CommandLineService.ActivationFailedExitCode;
         }
 
         using var singleInstance = new Mutex(true, "RenderNorthDisplaySwitcher", out var ownsMutex);
         if (!ownsMutex)
         {
             const string message = "RenderNorth Display Switcher is already running.";
-            log.Error(message);
-            MessageBox.Show(message, "RenderNorth Display Switcher");
-            return 3;
+            log.Error(message); MessageBox.Show(message, "RenderNorth Display Switcher"); return 3;
         }
 
         ApplicationConfiguration.Initialize();
         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
         Application.ThreadException += (_, e) => ShowFatal(log, e.Exception);
         AppDomain.CurrentDomain.UnhandledException += (_, e) => ShowFatal(log, e.ExceptionObject as Exception ?? new Exception("Unknown fatal error"));
-
         var service = new DisplayProfileService(log);
         var updates = new UpdateService(log);
         Application.Run(new MainForm(service, updates, log));
