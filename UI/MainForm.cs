@@ -112,7 +112,7 @@ internal sealed class MainForm : Form
 
     private Control EnvironmentCard(EnvironmentDefinition environment)
     {
-        var panel = Panel(Card); panel.Width = Math.Max(680, _environmentList.ClientSize.Width - 24); panel.Height = 92; panel.Margin = new Padding(0, 0, 0, 7);
+        var panel = Panel(Card); panel.Dock = DockStyle.None; panel.Width = Math.Max(680, _environmentList.ClientSize.Width - 24); panel.Height = 92; panel.Margin = new Padding(0, 0, 0, 7);
         var icon = LabelText(IconLabel(environment.Icon), 18, true); icon.Location = new Point(16, 26); icon.Size = new Size(48, 42); icon.TextAlign = ContentAlignment.MiddleCenter;
         var name = LabelText(environment.Name, 13, true); name.Location = new Point(72, 13); name.Size = new Size(330, 25);
         var details = LabelText($"{environment.Category ?? "Custom"}  •  {environment.Description ?? "Display workspace"}", 9); details.ForeColor = Muted; details.Location = new Point(73, 42); details.Size = new Size(350, 35);
