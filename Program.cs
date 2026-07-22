@@ -47,7 +47,8 @@ internal static class Program
             }
             Application.Run(new MainForm(manager, new UpdateService(log), log, CaptureDisplays,
                 () => displayService.DescribeTargets(displayService.Capture()),
-                () => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ms-settings:display") { UseShellExecute = true })));
+                () => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ms-settings:display") { UseShellExecute = true }),
+                ShortcutService.CreateDefault()));
             return 0;
         }
         catch (Exception exception)

@@ -16,6 +16,7 @@ internal sealed class MainForm : Form
     private readonly Func<ModuleDocument> _captureDisplays;
     private readonly Func<string> _identifyDisplays;
     private readonly Action _openDisplaySettings;
+    private readonly ShortcutService _shortcuts;
     private readonly FlowLayoutPanel _environmentList = new() { FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true };
     private readonly Label _currentName = LabelText("Custom Configuration", 18, true);
     private readonly Label _currentDetails = LabelText("No matching environment", 9);
@@ -25,10 +26,10 @@ internal sealed class MainForm : Form
     private readonly Button _downloadButton;
 
     public MainForm(EnvironmentManager manager, UpdateService updates, AppLogger log,
-        Func<ModuleDocument> captureDisplays, Func<string> identifyDisplays, Action openDisplaySettings)
+        Func<ModuleDocument> captureDisplays, Func<string> identifyDisplays, Action openDisplaySettings, ShortcutService shortcuts)
     {
         _manager = manager; _updates = updates; _log = log; _captureDisplays = captureDisplays;
-        _identifyDisplays = identifyDisplays; _openDisplaySettings = openDisplaySettings;
+        _identifyDisplays = identifyDisplays; _openDisplaySettings = openDisplaySettings; _shortcuts = shortcuts;
         Text = "RenderNorth Environments"; ClientSize = new Size(760, 780); MinimumSize = new Size(776, 700);
         StartPosition = FormStartPosition.CenterScreen; BackColor = Background; ForeColor = Color.White;
         Font = new Font("Segoe UI", 9); AutoScaleMode = AutoScaleMode.Dpi;
@@ -155,7 +156,39 @@ internal sealed class MainForm : Form
         menu.Items.Add("Duplicate", null, (_, _) => { var result = _manager.Duplicate(environment.Id); if (!result.Success) ShowWarning(result.Message); _ = RefreshAsync(); });
         menu.Items.Add("Move Up", null, (_, _) => { _manager.Move(environment.Id, -1); _ = RefreshAsync(); });
         menu.Items.Add("Move Down", null, (_, _) => { _manager.Move(environment.Id, 1); _ = RefreshAsync(); });
+        var createShortcut = new ToolStripMenuItem("Create Shortcut");
+        createShortcut.DropDownItems.Add("Desktop", null, (_, _) => CreateShortcut(() => _shortcuts.CreateDesktop(environment)));
+        createShortcut.DropDownItems.Add("Start Menu", null, (_, _) => CreateShortcut(() => _shortcuts.CreateStartMenu(environment)));
+        createShortcut.DropDownItems.Add("Custom Folder...", null, (_, _) => CreateCustomShortcut(environment));
+        menu.Items.Add(createShortcut);
+        menu.Items.Add("Copy Launch Command", null, (_, _) => { try { Clipboard.SetText(_shortcuts.LaunchCommand(environment)); _lastResult.Text = "Launch command copied."; } catch (Exception exception) { ShowError("Could not copy the launch command.", exception); } });
+        menu.Items.Add("Open Shortcut Folder", null, (_, _) => OpenShortcutFolder(environment));
+        menu.Items.Add("Recreate Shortcuts", null, (_, _) => CreateShortcut(() => { var paths = _shortcuts.Recreate(environment); return paths.Count == 0 ? throw new InvalidOperationException("No managed shortcuts exist for this environment.") : string.Join(Environment.NewLine, paths); }));
+        menu.Items.Add("Delete Managed Shortcuts", null, (_, _) => { try { var count = _shortcuts.DeleteManaged(environment.Id); _lastResult.Text = $"Deleted {count} managed shortcut(s)."; } catch (Exception exception) { ShowError("Could not delete managed shortcuts.", exception); } });
         menu.Items.Add(new ToolStripSeparator()); menu.Items.Add("Delete", null, (_, _) => Delete(environment)); menu.Show(owner, new Point(0, owner.Height));
+    }
+
+    private void CreateCustomShortcut(EnvironmentDefinition environment)
+    {
+        using var dialog = new FolderBrowserDialog { Description = "Choose where to create the environment shortcut", UseDescriptionForTitle = true };
+        if (dialog.ShowDialog(this) == DialogResult.OK) CreateShortcut(() => _shortcuts.CreateCustom(environment, dialog.SelectedPath));
+    }
+
+    private void CreateShortcut(Func<string> create)
+    {
+        try { var path = create(); _lastResult.Text = "Shortcut ready: " + path; }
+        catch (Exception exception) { ShowError("Could not create the environment shortcut.", exception); }
+    }
+
+    private void OpenShortcutFolder(EnvironmentDefinition environment)
+    {
+        try
+        {
+            var folder = _shortcuts.ManagedFolders(environment.Id).FirstOrDefault();
+            if (folder is null) throw new InvalidOperationException("No managed shortcuts exist for this environment.");
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(folder) { UseShellExecute = true });
+        }
+        catch (Exception exception) { ShowError("Could not open the shortcut folder.", exception); }
     }
 
     private void Delete(EnvironmentDefinition environment)
