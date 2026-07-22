@@ -6,6 +6,7 @@ namespace RenderNorth.DisplaySwitcher.Services;
 internal static class InstalledIntegration
 {
     private const string MainExecutable = "RenderNorthDisplaySwitcher.exe";
+    private const string MainShortcut = "RenderNorth Environments.lnk";
     private const string GameShortcut = "RenderNorth Display Switcher - Game Mode.lnk";
     private const string ScriptShortcut = "RenderNorth Display Switcher - Script Mode.lnk";
 
@@ -13,21 +14,25 @@ internal static class InstalledIntegration
     {
         if (VelopackLocator.Current.IsPortable) return;
         AppPaths.MigrateLegacyProfiles();
-        CreateShortcut(GameShortcut, "--game", "Silently activate the saved Game Mode display profile.");
-        CreateShortcut(ScriptShortcut, "--script", "Silently activate the saved Script Mode display profile.");
+        CreateShortcut(MainShortcut, "", "Open RenderNorth Environments.", Environment.SpecialFolder.Programs);
+        CreateShortcut(MainShortcut, "", "Open RenderNorth Environments.", Environment.SpecialFolder.DesktopDirectory);
+        CreateShortcut(GameShortcut, "--game", "Silently activate the saved Game Mode display profile.", Environment.SpecialFolder.Programs);
+        CreateShortcut(ScriptShortcut, "--script", "Silently activate the saved Script Mode display profile.", Environment.SpecialFolder.Programs);
     }
 
     public static void RemoveShortcuts()
     {
         DeleteShortcut(GameShortcut);
         DeleteShortcut(ScriptShortcut);
+        DeleteShortcut(MainShortcut, Environment.SpecialFolder.Programs);
+        DeleteShortcut(MainShortcut, Environment.SpecialFolder.DesktopDirectory);
     }
 
-    private static void CreateShortcut(string fileName, string arguments, string description)
+    private static void CreateShortcut(string fileName, string arguments, string description, Environment.SpecialFolder folderKind)
     {
-        var programs = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
-        if (string.IsNullOrWhiteSpace(programs)) return;
-        Directory.CreateDirectory(programs);
+        var folder = Environment.GetFolderPath(folderKind);
+        if (string.IsNullOrWhiteSpace(folder)) return;
+        Directory.CreateDirectory(folder);
 
         var root = VelopackLocator.Current.RootAppDir
             ?? throw new InvalidOperationException("Velopack did not provide an installed application root.");
@@ -35,7 +40,7 @@ internal static class InstalledIntegration
         var content = VelopackLocator.Current.AppContentDir
             ?? throw new InvalidOperationException("Velopack did not provide an application content directory.");
         var icon = Path.Combine(content, MainExecutable);
-        var shortcutPath = Path.Combine(programs, fileName);
+        var shortcutPath = Path.Combine(folder, fileName);
         var shellType = Type.GetTypeFromProgID("WScript.Shell")
             ?? throw new InvalidOperationException("Windows Script Host is unavailable.");
         dynamic? shell = null;
@@ -58,11 +63,11 @@ internal static class InstalledIntegration
         }
     }
 
-    private static void DeleteShortcut(string fileName)
+    private static void DeleteShortcut(string fileName, Environment.SpecialFolder folderKind = Environment.SpecialFolder.Programs)
     {
-        var programs = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
-        if (string.IsNullOrWhiteSpace(programs)) return;
-        var path = Path.Combine(programs, fileName);
+        var folder = Environment.GetFolderPath(folderKind);
+        if (string.IsNullOrWhiteSpace(folder)) return;
+        var path = Path.Combine(folder, fileName);
         if (File.Exists(path)) File.Delete(path);
     }
 }

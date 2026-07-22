@@ -76,3 +76,13 @@ Next product gate: release-readiness review and explicit owner approval before v
 - Added an explicit managed-shortcut cleanup choice to environment deletion; unmanaged shortcuts are never touched.
 - Build/test verification: `build.ps1` passed with 43 tests, 0 warnings, and 0 errors.
 - No display-engine, architecture, package identity, updater, version, or release-feed changes were made.
+
+## RN-014 Shortcut Blocker Resolution
+
+- Root cause: Velopack packaging with `--shortcuts Desktop,StartMenuRoot` allowed package/update shortcut metadata to preserve a build-account absolute path from the prior test artifact. The source and RC package text contained no `CodexSandboxOffline` string.
+- `InstalledIntegration` now creates the main Start Menu/Desktop shortcuts and compatibility shortcuts at install/update runtime from the destination machine's `VelopackLocator.Current.RootAppDir`.
+- The release pipeline now passes `--shortcuts None` so no build-machine shortcut metadata is embedded.
+- Private preview.4 package was applied under the vance account.
+- WScript inspection confirmed compatibility and environment shortcuts target `C:\Users\vance\AppData\Local\RenderNorth.DisplaySwitcher\RenderNorthDisplaySwitcher.exe` with correct arguments.
+- Environment shortcut target contains neither `current` nor a versioned directory and retains the permanent GUID argument.
+- Build/test verification after the fix: 43 tests passed, 0 warnings, 0 errors.

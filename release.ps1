@@ -81,7 +81,7 @@ Copy-Item -LiteralPath $zipPath -Destination $velopackOutput
 
 dotnet tool restore
 if ($LASTEXITCODE -ne 0) { throw "dotnet tool restore failed with exit code $LASTEXITCODE" }
-dotnet tool run vpk pack --packId RenderNorth.DisplaySwitcher --packVersion $Version --packDir $releaseFolder --mainExe RenderNorthDisplaySwitcher.exe --packTitle "RenderNorth Display Switcher" --packAuthors RenderNorth --shortcuts Desktop,StartMenuRoot --releaseNotes (Join-Path $projectRoot "docs\releases\v$Version.md") --outputDir $velopackOutput
+dotnet tool run vpk pack --packId RenderNorth.DisplaySwitcher --packVersion $Version --packDir $releaseFolder --mainExe RenderNorthDisplaySwitcher.exe --packTitle "RenderNorth Display Switcher" --packAuthors RenderNorth --shortcuts None --releaseNotes (Join-Path $projectRoot "docs\releases\v$Version.md") --outputDir $velopackOutput
 if ($LASTEXITCODE -ne 0) { throw "Velopack packaging failed with exit code $LASTEXITCODE" }
 
 $setup = Get-ChildItem -LiteralPath $velopackOutput -Filter '*Setup.exe' | Select-Object -First 1
