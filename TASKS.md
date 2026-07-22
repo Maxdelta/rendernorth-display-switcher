@@ -97,9 +97,9 @@
 
 ### Phase 11 - Installed migration testing
 
-- [ ] Test public v0.3.2 to local v0.4 migration
+- [x] Test public v0.3.2 to local v0.4 migration
 - [ ] Verify backups, legacy launchers, ID activation, rename-safe shortcuts, restart, update, and uninstall
-- [ ] Record physical Stream Deck testing only after owner verification
+- [x] Record physical Stream Deck testing after owner verification
 
 ### Phase 12 - Release preparation
 
