@@ -21,9 +21,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Launchers\**\*.cs" />
+    <Compile Remove="Tests\**\*.cs" />
     <None Remove="Launchers\**\*" />
+    <None Remove="Tests\**\*" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Velopack" Version="1.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="RenderNorth.Environments.Tests" />
   </ItemGroup>
 </Project>

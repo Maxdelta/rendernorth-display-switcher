@@ -1,0 +1,15 @@
+{
+  "FormatVersion": 1,
+  "SavedAt": "2026-01-01T12:00:00+00:00",
+  "MachineName": "TEST-MACHINE",
+  "Paths": [],
+  "Modes": [],
+  "Targets": [
+    {
+      "AdapterId": 100,
+      "TargetId": 1,
+      "MonitorDevicePath": "DISPLAY\\LEGACY_GAME",
+      "FriendlyName": "Legacy Game Display"
+    }
+  ]
+}

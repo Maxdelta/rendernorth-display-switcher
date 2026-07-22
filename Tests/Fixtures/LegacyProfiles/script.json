@@ -1,0 +1,15 @@
+{
+  "FormatVersion": 1,
+  "SavedAt": "2026-01-01T12:05:00+00:00",
+  "MachineName": "TEST-MACHINE",
+  "Paths": [],
+  "Modes": [],
+  "Targets": [
+    {
+      "AdapterId": 100,
+      "TargetId": 2,
+      "MonitorDevicePath": "DISPLAY\\LEGACY_SCRIPT",
+      "FriendlyName": "Legacy Script Display"
+    }
+  ]
+}

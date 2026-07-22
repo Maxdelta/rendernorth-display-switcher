@@ -1,0 +1,12 @@
+{
+  "type": "future-audio",
+  "schemaVersion": 7,
+  "activationOrder": 200,
+  "isEnabled": true,
+  "data": {
+    "deviceId": "future-device",
+    "nested": {
+      "mustSurvive": true
+    }
+  }
+}

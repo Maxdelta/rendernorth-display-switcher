@@ -22,4 +22,11 @@ foreach ($project in $projects) {
     dotnet build $projectPath --configuration Release --no-restore --output $output
     if ($LASTEXITCODE -ne 0) { throw "dotnet build failed for $project with exit code $LASTEXITCODE" }
 }
+$testProject = Join-Path $projectRoot 'Tests\RenderNorth.Environments.Tests.csproj'
+dotnet restore $testProject --configfile (Join-Path $projectRoot 'NuGet.Config')
+if ($LASTEXITCODE -ne 0) { throw "dotnet restore failed for the test project with exit code $LASTEXITCODE" }
+dotnet build $testProject --configuration Release --no-restore
+if ($LASTEXITCODE -ne 0) { throw "dotnet build failed for the test project with exit code $LASTEXITCODE" }
+dotnet test $testProject --configuration Release --no-build --no-restore
+if ($LASTEXITCODE -ne 0) { throw "dotnet test failed with exit code $LASTEXITCODE" }
 Write-Host "Build succeeded: $output"
