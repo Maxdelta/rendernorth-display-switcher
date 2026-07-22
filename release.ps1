@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Version = '0.3.2'
+    [string]$Version = '0.4.0'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -8,7 +8,7 @@ $projectRoot = $PSScriptRoot
 $publishFolder = Join-Path $projectRoot 'artifacts\publish\win-x64'
 $releaseRoot = Join-Path $projectRoot 'artifacts\release'
 $runtimeFolder = Join-Path $releaseRoot 'launcher-runtime'
-$releaseName = "RenderNorth-Display-Switcher-v$Version-win-x64-Portable-Manual-Updates"
+$releaseName = "RenderNorth-Environments-v$Version-win-x64-Portable-Manual-Updates"
 $releaseFolder = Join-Path $releaseRoot $releaseName
 $zipPath = Join-Path $releaseRoot "$releaseName.zip"
 $velopackOutput = Join-Path $projectRoot 'artifacts\velopack'
@@ -43,16 +43,16 @@ Get-ChildItem -LiteralPath $runtimeFolder -File | Copy-Item -Destination $releas
 Copy-Item -LiteralPath (Join-Path $projectRoot 'LICENSE') -Destination $releaseFolder
 
 $quickStart = @"
-RenderNorth Display Switcher v$Version - Quick Start
+RenderNorth Environments v$Version - Quick Start
 =================================================
 
 SETUP EDITION (RECOMMENDED)
-1. Download and run RenderNorth-Display-Switcher-Setup-v$Version.exe.
-2. Open RenderNorth Display Switcher from the Start menu.
+1. Download and run RenderNorth-Environments-Setup-v$Version.exe.
+2. Open RenderNorth Environments from the Start menu.
 3. Configure each layout in Windows Display Settings and save Game Mode and Script Mode.
 4. In Stream Deck, add System > Open actions and select these Start menu shortcuts:
-     RenderNorth Display Switcher - Game Mode
-     RenderNorth Display Switcher - Script Mode
+  RenderNorth Environments - Game Mode
+  RenderNorth Environments - Script Mode
 5. Test both buttons while watching the capture preview.
 6. Use Check for Updates in the app when a newer release is available.
 
@@ -85,8 +85,8 @@ dotnet tool run vpk pack --packId RenderNorth.DisplaySwitcher --packVersion $Ver
 if ($LASTEXITCODE -ne 0) { throw "Velopack packaging failed with exit code $LASTEXITCODE" }
 
 $setup = Get-ChildItem -LiteralPath $velopackOutput -Filter '*Setup.exe' | Select-Object -First 1
-if ($null -ne $setup) { Copy-Item -LiteralPath $setup.FullName -Destination (Join-Path $velopackOutput "RenderNorth-Display-Switcher-Setup-v$Version.exe") }
-Copy-Item -LiteralPath $zipPath -Destination (Join-Path $velopackOutput "RenderNorth-Display-Switcher-v$Version-win-x64-Portable-Manual-Updates.zip") -Force
+if ($null -ne $setup) { Copy-Item -LiteralPath $setup.FullName -Destination (Join-Path $velopackOutput "RenderNorth-Environments-Setup-v$Version.exe") }
+Copy-Item -LiteralPath $zipPath -Destination (Join-Path $velopackOutput "RenderNorth-Environments-v$Version-win-x64-Portable-Manual-Updates.zip") -Force
 $checksums = Get-ChildItem -LiteralPath $velopackOutput -File | ForEach-Object { "{0}  {1}" -f (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash,$_.Name }
 Set-Content -LiteralPath (Join-Path $velopackOutput 'SHA256SUMS.txt') -Value $checksums -Encoding ASCII
 Write-Host "Release folder: $releaseFolder"

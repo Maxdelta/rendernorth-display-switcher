@@ -11,11 +11,9 @@ RenderNorth Environments is a Windows desktop workspace launcher. Save complete 
 
 The v0.4 preview implements the first environment capability: **Displays**. It captures and restores native Windows display topology, including active displays, primary display, duplicate and extend relationships, positions, resolutions, and supported refresh information.
 
-## Development Status
+## Early Access Status
 
-RenderNorth Environments v0.4 is under local migration and installed-artifact testing. It has not been published.
-
-The current public release remains **RenderNorth Display Switcher v0.3.2**. Existing users should continue downloading the recommended Setup EXE from the [latest public release](https://github.com/Maxdelta/rendernorth-display-switcher/releases/latest) until the v0.4 migration is approved and published.
+RenderNorth Environments v0.4.0 is an Early Access build prepared for owner review. It is not yet a public release. Existing users should continue using their current installed release until v0.4.0 receives explicit publication approval.
 
 ## What Is an Environment?
 
