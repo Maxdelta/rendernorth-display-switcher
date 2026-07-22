@@ -9,6 +9,18 @@ public sealed class ShortcutServiceTests : IDisposable
     private readonly string _folder = Path.Combine(Path.GetTempPath(), "RenderNorthShortcutTests", Guid.NewGuid().ToString("N"));
 
     [Fact]
+    public void InstalledCurrentDirectory_WinsOverAccountDependentLocatorRoot()
+    {
+        var executable = ShortcutService.ResolveStableExecutable(
+            @"C:\Users\ActualUser\AppData\Local\RenderNorth.DisplaySwitcher\current\",
+            @"C:\Users\DifferentAccount\AppData\Local\RenderNorth.DisplaySwitcher");
+
+        Assert.Equal(
+            @"C:\Users\ActualUser\AppData\Local\RenderNorth.DisplaySwitcher\RenderNorthDisplaySwitcher.exe",
+            executable);
+    }
+
+    [Fact]
     public void Shortcut_UsesStableRootTargetAndGuidArgument()
     {
         var writer = new RecordingWriter(); var root = Path.Combine(_folder, "stable", "RenderNorthDisplaySwitcher.exe");

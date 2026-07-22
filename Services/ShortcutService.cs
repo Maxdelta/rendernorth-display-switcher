@@ -47,9 +47,26 @@ internal sealed class ShortcutService
 
     public static ShortcutService CreateDefault()
     {
-        var root = VelopackLocator.Current.RootAppDir;
-        var executable = root is null ? Path.Combine(AppContext.BaseDirectory, MainExecutable) : Path.Combine(root, MainExecutable);
+        var executable = ResolveStableExecutable(AppContext.BaseDirectory, VelopackLocator.Current.RootAppDir);
         return new ShortcutService(executable, Path.Combine(AppPaths.DataFolder, "managed-shortcuts.json"));
+    }
+
+    internal static string ResolveStableExecutable(string baseDirectory, string? locatorRoot)
+    {
+        var normalizedBase = Path.GetFullPath(baseDirectory)
+            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        if (string.Equals(Path.GetFileName(normalizedBase), "current", StringComparison.OrdinalIgnoreCase))
+        {
+            var installedRoot = Directory.GetParent(normalizedBase)?.FullName
+                ?? throw new InvalidOperationException("The installed current directory has no parent application root.");
+
+            return Path.Combine(installedRoot, MainExecutable);
+        }
+
+        return locatorRoot is null
+            ? Path.Combine(normalizedBase, MainExecutable)
+            : Path.Combine(locatorRoot, MainExecutable);
     }
 
     public string CreateDesktop(EnvironmentDefinition environment) => Create(environment, Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory));
