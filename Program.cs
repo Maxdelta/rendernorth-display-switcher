@@ -24,10 +24,31 @@ internal static class Program
             var repository = new EnvironmentRepository();
             new LegacyMigrationService(repository, AppPaths.DataFolder, log).MigrateIfNeeded();
             var registry = new EnvironmentModuleRegistry();
-            registry.Register(DisplayModule.Type, () => new DisplayModule(new DisplayModuleService()));
+            var displayService = new DisplayModuleService();
+            registry.Register(DisplayModule.Type, () => new DisplayModule(displayService));
             var manager = new EnvironmentManager(repository, registry, log);
             var command = new CommandLineService(manager, log).ExecuteAsync(args).GetAwaiter().GetResult();
             if (!command.ShowGui) return command.ExitCode;
+
+            using var singleInstance = new Mutex(true, "RenderNorthDisplaySwitcher", out var ownsMutex);
+            if (!ownsMutex)
+            {
+                const string message = "RenderNorth Environments is already running.";
+                log.Error(message); MessageBox.Show(message, "RenderNorth Environments"); return 3;
+            }
+
+            ApplicationConfiguration.Initialize();
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+            Application.ThreadException += (_, e) => ShowFatal(log, e.Exception);
+            AppDomain.CurrentDomain.UnhandledException += (_, e) => ShowFatal(log, e.ExceptionObject as Exception ?? new Exception("Unknown fatal error"));
+            ModuleDocument CaptureDisplays()
+            {
+                var module = new DisplayModule(displayService); module.SetConfiguration(displayService.Capture()); return module.Save();
+            }
+            Application.Run(new MainForm(manager, new UpdateService(log), log, CaptureDisplays,
+                () => displayService.DescribeTargets(displayService.Capture()),
+                () => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ms-settings:display") { UseShellExecute = true })));
+            return 0;
         }
         catch (Exception exception)
         {
@@ -38,27 +59,12 @@ internal static class Program
             return CommandLineService.ActivationFailedExitCode;
         }
 
-        using var singleInstance = new Mutex(true, "RenderNorthDisplaySwitcher", out var ownsMutex);
-        if (!ownsMutex)
-        {
-            const string message = "RenderNorth Display Switcher is already running.";
-            log.Error(message); MessageBox.Show(message, "RenderNorth Display Switcher"); return 3;
-        }
-
-        ApplicationConfiguration.Initialize();
-        Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-        Application.ThreadException += (_, e) => ShowFatal(log, e.Exception);
-        AppDomain.CurrentDomain.UnhandledException += (_, e) => ShowFatal(log, e.ExceptionObject as Exception ?? new Exception("Unknown fatal error"));
-        var service = new DisplayProfileService(log);
-        var updates = new UpdateService(log);
-        Application.Run(new MainForm(service, updates, log));
-        return 0;
     }
 
     private static void ShowFatal(AppLogger log, Exception exception)
     {
         log.Error("Unhandled error", exception);
         MessageBox.Show($"Unexpected failure. No display change was requested.\n\n{exception.Message}\n\nSee: {log.LogFolder}",
-            "RenderNorth Display Switcher", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            "RenderNorth Environments", MessageBoxButtons.OK, MessageBoxIcon.Error);
     }
 }

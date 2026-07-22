@@ -6,7 +6,7 @@ internal static class AppPaths
 {
     private static bool _initialized;
 
-    public static bool IsPortable => VelopackLocator.Current.IsPortable;
+    public static bool IsPortable => VelopackLocator.Current.IsPortable || VelopackLocator.Current.RootAppDir is null;
     public static string DataFolder => IsPortable
         ? AppContext.BaseDirectory
         : Path.Combine(RequireRootAppDir(), "UserData");

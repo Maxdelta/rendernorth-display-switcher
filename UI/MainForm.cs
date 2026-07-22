@@ -1,4 +1,5 @@
-using System.Diagnostics;
+using RenderNorth.DisplaySwitcher.Domain.Environments;
+using RenderNorth.DisplaySwitcher.Domain.Modules;
 using RenderNorth.DisplaySwitcher.Services;
 
 namespace RenderNorth.DisplaySwitcher.UI;
@@ -9,133 +10,164 @@ internal sealed class MainForm : Form
     private static readonly Color Card = Color.FromArgb(35, 42, 47);
     private static readonly Color Accent = Color.FromArgb(38, 198, 190);
     private static readonly Color Muted = Color.FromArgb(174, 187, 194);
-    private readonly DisplayProfileService _service;
+    private readonly EnvironmentManager _manager;
     private readonly UpdateService _updates;
     private readonly AppLogger _log;
-    private readonly Label _activeProfile = TextLabel("Custom / Unknown", 18, true);
-    private readonly Panel _indicator = new() { Size = new Size(12, 12) };
-    private readonly Label _lastResult = TextLabel("No switch recorded", 9);
-    private readonly Label _lastSuccessful = TextLabel("None recorded", 9);
-    private readonly Label _updateStatus = TextLabel("Not checked", 9);
-    private readonly Label _releaseNotes = TextLabel("", 8);
+    private readonly Func<ModuleDocument> _captureDisplays;
+    private readonly Func<string> _identifyDisplays;
+    private readonly Action _openDisplaySettings;
+    private readonly FlowLayoutPanel _environmentList = new() { FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true };
+    private readonly Label _currentName = LabelText("Custom Configuration", 18, true);
+    private readonly Label _currentDetails = LabelText("No matching environment", 9);
+    private readonly Label _lastResult = LabelText("No environment activation has been recorded yet.", 9);
+    private readonly Label _lastSuccessful = LabelText("None recorded", 9);
+    private readonly Label _updateStatus = LabelText("Not checked", 9);
     private readonly Button _downloadButton;
 
-    public MainForm(DisplayProfileService service, UpdateService updates, AppLogger log)
+    public MainForm(EnvironmentManager manager, UpdateService updates, AppLogger log,
+        Func<ModuleDocument> captureDisplays, Func<string> identifyDisplays, Action openDisplaySettings)
     {
-        _service = service; _updates = updates; _log = log;
-        Text = "RenderNorth Display Switcher";
-        ClientSize = new Size(620, 690); MinimumSize = new Size(636, 729);
+        _manager = manager; _updates = updates; _log = log; _captureDisplays = captureDisplays;
+        _identifyDisplays = identifyDisplays; _openDisplaySettings = openDisplaySettings;
+        Text = "RenderNorth Environments"; ClientSize = new Size(760, 780); MinimumSize = new Size(776, 700);
         StartPosition = FormStartPosition.CenterScreen; BackColor = Background; ForeColor = Color.White;
         Font = new Font("Segoe UI", 9); AutoScaleMode = AutoScaleMode.Dpi;
 
-        var root = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true, Padding = new Padding(16), BackColor = Background };
-        root.Controls.Add(Header());
-        root.Controls.Add(ActiveCard());
-        root.Controls.Add(ModeCard("GAME MODE", "Main Gaming Monitor → Elgato\nSecond monitor remains extended", "Activate Game Mode", ProfileKind.Game, Color.FromArgb(35, 174, 108)));
-        root.Controls.Add(ModeCard("SCRIPT MODE", "Second Monitor → Elgato\nMain monitor remains private", "Activate Script Mode", ProfileKind.Script, Accent));
-        root.Controls.Add(ProfileManagement());
-        _downloadButton = ActionButton("Download and Install", Accent, async (_, _) => await DownloadAndInstallAsync());
-        _downloadButton.Visible = false;
-        root.Controls.Add(Utilities());
-        root.Controls.Add(StatusCard());
-        Controls.Add(root);
-
+        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5, Padding = new Padding(18), BackColor = Background };
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 82)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 104));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 58)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 112));
+        root.Controls.Add(Header(), 0, 0); root.Controls.Add(CurrentCard(), 0, 1);
+        _environmentList.Dock = DockStyle.Fill; _environmentList.BackColor = Background; _environmentList.Padding = new Padding(0, 4, 0, 4);
+        root.Controls.Add(_environmentList, 0, 2); root.Controls.Add(Actions(), 0, 3);
+        _downloadButton = Button("Download and Install", Accent, async (_, _) => await DownloadAndInstallAsync()); _downloadButton.Visible = false;
+        root.Controls.Add(StatusCard(), 0, 4); Controls.Add(root);
         _updates.StatusChanged += OnUpdateStatusChanged;
-        Shown += async (_, _) => { RefreshProfileStatus(); await _updates.CheckAsync(); };
+        Shown += async (_, _) => { await RefreshAsync(); await _updates.CheckAsync(); };
     }
 
     private Control Header()
     {
-        var panel = NewPanel(560, 78, Background);
-        panel.Controls.Add(new Label { Text = "RENDERNORTH", ForeColor = Accent, Font = new Font("Segoe UI Semibold", 9), AutoSize = true, Location = new Point(0, 0) });
-        panel.Controls.Add(new Label { Text = "Display Switcher", ForeColor = Color.White, Font = new Font("Segoe UI Semibold", 24), AutoSize = true, Location = new Point(-2, 18) });
-        panel.Controls.Add(new Label { Text = $"Dual-PC display routing for creators  •  v{AppVersion.Current}", ForeColor = Muted, AutoSize = true, Location = new Point(1, 59) });
+        var panel = Panel(Card);
+        panel.Controls.Add(new Label { Text = "RENDERNORTH", ForeColor = Accent, Font = new Font("Segoe UI Semibold", 9), AutoSize = true, Location = new Point(18, 12) });
+        panel.Controls.Add(new Label { Text = "Environments", ForeColor = Color.White, Font = new Font("Segoe UI Semibold", 25), AutoSize = true, Location = new Point(16, 29) });
+        panel.Controls.Add(new Label { Text = $"Your PC should adapt to what you are doing  •  v{AppVersion.Current}", ForeColor = Muted, AutoSize = true, Location = new Point(310, 49) });
         return panel;
     }
 
-    private Control ActiveCard()
+    private Control CurrentCard()
     {
-        var panel = NewPanel(560, 68, Card);
-        panel.Controls.Add(new Label { Text = "ACTIVE PROFILE", ForeColor = Muted, AutoSize = true, Location = new Point(18, 13) });
-        _indicator.Location = new Point(20, 45); panel.Controls.Add(_indicator);
-        _activeProfile.Location = new Point(42, 35); _activeProfile.AutoSize = true; panel.Controls.Add(_activeProfile);
-        return panel;
+        var panel = Panel(Card); panel.Margin = new Padding(0, 6, 0, 6);
+        panel.Controls.Add(new Label { Text = "CURRENT ENVIRONMENT", ForeColor = Muted, AutoSize = true, Location = new Point(18, 13) });
+        _currentName.Location = new Point(18, 35); _currentName.Size = new Size(680, 30); panel.Controls.Add(_currentName);
+        _currentDetails.Location = new Point(20, 70); _currentDetails.Size = new Size(680, 22); panel.Controls.Add(_currentDetails); return panel;
     }
 
-    private Control ModeCard(string title, string description, string buttonText, ProfileKind kind, Color color)
+    private Control Actions()
     {
-        var panel = NewPanel(560, 94, Card);
-        panel.Controls.Add(new Label { Text = title, ForeColor = color, Font = new Font("Segoe UI Semibold", 11), AutoSize = true, Location = new Point(18, 14) });
-        panel.Controls.Add(new Label { Text = description, ForeColor = Muted, AutoSize = true, Location = new Point(18, 40) });
-        var button = ActionButton(buttonText, color, (_, _) => RunOperation(() => _service.Activate(kind)));
-        button.Location = new Point(340, 30); button.Size = new Size(195, 48); panel.Controls.Add(button);
-        return panel;
-    }
-
-    private Control ProfileManagement()
-    {
-        var panel = NewPanel(560, 78, Card);
-        panel.Controls.Add(SectionTitle("PROFILE MANAGEMENT", new Point(18, 12)));
-        var game = SecondaryButton("Save Current as Game Mode", (_, _) => SaveProfile(ProfileKind.Game)); game.Location = new Point(18, 39);
-        var script = SecondaryButton("Save Current as Script Mode", (_, _) => SaveProfile(ProfileKind.Script)); script.Location = new Point(286, 39);
-        panel.Controls.AddRange([game, script]); return panel;
-    }
-
-    private Control Utilities()
-    {
-        var panel = NewPanel(560, 80, Card); panel.Controls.Add(SectionTitle("UTILITIES", new Point(18, 8)));
-        var identify = SmallButton("Identify Displays", Identify);
-        var logs = SmallButton("Open Logs", (_, _) => Process.Start(new ProcessStartInfo(_log.LogFolder) { UseShellExecute = true }));
-        var check = SmallButton("Check for Updates", async (_, _) => await _updates.CheckAsync());
-        var about = SmallButton("About", (_, _) => new AboutForm(() => _updates.CheckAsync()).ShowDialog(this));
-        var controls = new[] { identify, logs, check, about };
-        for (var i = 0; i < controls.Length; i++) { controls[i].Location = new Point(18 + i * 132, 34); panel.Controls.Add(controls[i]); }
+        var panel = Panel(Background); var actions = new[]
+        {
+            Button("New Environment", Accent, (_, _) => EditNew(false)),
+            Button("Capture Current Setup", Color.FromArgb(35, 174, 108), (_, _) => EditNew(true)),
+            Button("Identify Displays", Color.FromArgb(53, 64, 70), Identify),
+            Button("Settings", Color.FromArgb(53, 64, 70), (_, _) => new AboutForm(() => _updates.CheckAsync()).ShowDialog(this))
+        };
+        for (var index = 0; index < actions.Length; index++) { actions[index].Size = new Size(166, 38); actions[index].Location = new Point(index * 174, 8); panel.Controls.Add(actions[index]); }
         return panel;
     }
 
     private Control StatusCard()
     {
-        var panel = NewPanel(560, 124, Card); panel.Controls.Add(SectionTitle("STATUS", new Point(18, 10)));
-        _lastResult.Location = new Point(18, 39); _lastResult.Size = new Size(520, 20);
-        _lastSuccessful.Location = new Point(18, 61); _lastSuccessful.Size = new Size(520, 20);
-        _updateStatus.Location = new Point(18, 83); _updateStatus.Size = new Size(330, 20);
-        _releaseNotes.Location = new Point(18, 104); _releaseNotes.Size = new Size(520, 18);
-        _downloadButton.Location = new Point(365, 76); _downloadButton.Size = new Size(170, 34);
-        panel.Controls.AddRange([_lastResult, _lastSuccessful, _updateStatus, _releaseNotes, _downloadButton]); return panel;
+        var panel = Panel(Card); panel.Margin = new Padding(0, 6, 0, 0);
+        panel.Controls.Add(new Label { Text = "STATUS", ForeColor = Muted, AutoSize = true, Location = new Point(18, 12) });
+        _lastResult.Location = new Point(18, 34); _lastResult.Size = new Size(680, 20);
+        _lastSuccessful.Location = new Point(18, 55); _lastSuccessful.Size = new Size(680, 20);
+        _updateStatus.Location = new Point(18, 78); _updateStatus.Size = new Size(430, 20);
+        _downloadButton.Location = new Point(510, 67); _downloadButton.Size = new Size(190, 34);
+        panel.Controls.AddRange([_lastResult, _lastSuccessful, _updateStatus, _downloadButton]); return panel;
     }
 
-    private void SaveProfile(ProfileKind kind)
+    private async Task RefreshAsync()
     {
-        if (_service.HasProfile(kind) && MessageBox.Show(this, $"Overwrite the saved {kind} Mode profile?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
-        RunOperation(() => _service.Save(kind));
+        EnvironmentCollection collection;
+        try { collection = _manager.Load(); }
+        catch (Exception exception) { _log.Error("Could not load environments", exception); _lastResult.Text = "Could not load environments: " + exception.Message; return; }
+        _environmentList.SuspendLayout(); _environmentList.Controls.Clear();
+        foreach (var environment in collection.Environments.OrderBy(item => item.SortOrder).ThenBy(item => item.Name)) _environmentList.Controls.Add(EnvironmentCard(environment));
+        if (collection.Environments.Count == 0)
+        {
+            var empty = LabelText("No environments yet. Capture the current setup to create your first workspace.", 11);
+            empty.ForeColor = Muted; empty.Size = new Size(690, 70); empty.TextAlign = ContentAlignment.MiddleCenter; _environmentList.Controls.Add(empty);
+        }
+        _environmentList.ResumeLayout(); _lastResult.Text = "Last activation: " + collection.ActivationStatus.LastResult;
+        _lastSuccessful.Text = "Last successful activation: " + (collection.ActivationStatus.LastSuccessfulAt?.ToLocalTime().ToString("g") ?? "None recorded");
+        try
+        {
+            var detected = await _manager.DetectAsync();
+            _currentName.Text = detected.Environment?.Name ?? "Custom Configuration";
+            _currentDetails.Text = detected.Environment is null ? "No matching environment" : $"{IconLabel(detected.Environment.Icon)}  {detected.Environment.Category ?? "Custom"}";
+        }
+        catch (Exception exception) { _log.Error("Environment detection failed", exception); _currentName.Text = "Custom Configuration"; _currentDetails.Text = "Detection unavailable"; }
     }
 
-    private void RunOperation(Func<OperationResult> operation)
+    private Control EnvironmentCard(EnvironmentDefinition environment)
+    {
+        var panel = Panel(Card); panel.Width = Math.Max(680, _environmentList.ClientSize.Width - 24); panel.Height = 92; panel.Margin = new Padding(0, 0, 0, 7);
+        var icon = LabelText(IconLabel(environment.Icon), 18, true); icon.Location = new Point(16, 26); icon.Size = new Size(48, 42); icon.TextAlign = ContentAlignment.MiddleCenter;
+        var name = LabelText(environment.Name, 13, true); name.Location = new Point(72, 13); name.Size = new Size(330, 25);
+        var details = LabelText($"{environment.Category ?? "Custom"}  •  {environment.Description ?? "Display workspace"}", 9); details.ForeColor = Muted; details.Location = new Point(73, 42); details.Size = new Size(350, 35);
+        var activate = Button("Activate", Accent, async (_, _) => await ActivateAsync(environment.Id)); activate.Location = new Point(430, 24); activate.Size = new Size(112, 42);
+        var edit = Button("Edit", Color.FromArgb(53, 64, 70), (_, _) => Edit(environment)); edit.Location = new Point(550, 24); edit.Size = new Size(74, 42);
+        Button? more = null;
+        more = Button("•••", Color.FromArgb(53, 64, 70), (_, _) => ShowMore(environment, more!)); more.Location = new Point(632, 24); more.Size = new Size(48, 42);
+        panel.Controls.AddRange([icon, name, details, activate, edit, more]); return panel;
+    }
+
+    private async Task ActivateAsync(Guid id)
     {
         UseWaitCursor = true;
-        try { var result = operation(); _lastResult.Text = "Last switch result: " + OneLine(result.Message); _lastResult.ForeColor = result.Success ? Color.LightGreen : Color.Salmon; RefreshProfileStatus(); }
+        try { var result = await _manager.ActivateAsync(id); _lastResult.Text = "Last activation: " + result.Message; _lastResult.ForeColor = result.Success ? Color.LightGreen : Color.Salmon; await RefreshAsync(); }
         finally { UseWaitCursor = false; }
     }
 
-    private void RefreshProfileStatus()
+    private void EditNew(bool capture)
     {
-        var status = _service.GetApplicationStatus(); _activeProfile.Text = status.CurrentProfile;
-        _indicator.BackColor = status.CurrentProfile switch { "Game Mode" => Color.FromArgb(35, 174, 108), "Script Mode" => Accent, "Custom / Unknown" => Color.Goldenrod, _ => Color.IndianRed };
-        _lastResult.Text = "Last switch result: " + OneLine(status.LastSwitchResult);
-        _lastSuccessful.Text = "Last successful switch: " + (status.LastSuccessfulSwitchAt?.ToLocalTime().ToString("g") ?? "None recorded");
+        var draft = new EnvironmentDefinition { Id = Guid.Empty, Name = "New Environment" };
+        if (capture) try { draft.Modules = [_captureDisplays()]; } catch (Exception exception) { ShowError("Could not capture the current display setup.", exception); return; }
+        using var editor = new EnvironmentEditorForm(draft, _captureDisplays, false);
+        if (editor.ShowDialog(this) != DialogResult.OK) return;
+        var result = _manager.Create(editor.Environment.Name, editor.Environment.Description, editor.Environment.Icon, editor.Environment.Category, editor.Environment.Modules);
+        if (!result.Success) MessageBox.Show(this, result.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning); else _ = RefreshAsync();
+    }
+
+    private void Edit(EnvironmentDefinition environment)
+    {
+        using var editor = new EnvironmentEditorForm(Clone(environment), _captureDisplays, true);
+        var dialog = editor.ShowDialog(this);
+        if (dialog == DialogResult.Abort) { Delete(environment); return; }
+        if (dialog != DialogResult.OK) return;
+        var result = _manager.Update(editor.Environment);
+        if (!result.Success) MessageBox.Show(this, result.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning); else _ = RefreshAsync();
+    }
+
+    private void ShowMore(EnvironmentDefinition environment, Control owner)
+    {
+        var menu = new ContextMenuStrip();
+        menu.Items.Add("Duplicate", null, (_, _) => { var result = _manager.Duplicate(environment.Id); if (!result.Success) ShowWarning(result.Message); _ = RefreshAsync(); });
+        menu.Items.Add("Move Up", null, (_, _) => { _manager.Move(environment.Id, -1); _ = RefreshAsync(); });
+        menu.Items.Add("Move Down", null, (_, _) => { _manager.Move(environment.Id, 1); _ = RefreshAsync(); });
+        menu.Items.Add(new ToolStripSeparator()); menu.Items.Add("Delete", null, (_, _) => Delete(environment)); menu.Show(owner, new Point(0, owner.Height));
+    }
+
+    private void Delete(EnvironmentDefinition environment)
+    {
+        if (MessageBox.Show(this, $"Delete '{environment.Name}'?\n\nExisting shortcuts for this environment will stop working.", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
+        var result = _manager.Delete(environment.Id); if (!result.Success) ShowWarning(result.Message); _ = RefreshAsync();
     }
 
     private void Identify(object? sender, EventArgs args)
     {
-        try { var text = _service.IdentifyDisplays(); _log.Info(text.Replace(Environment.NewLine, " | ")); MessageBox.Show(this, text, "Identify Displays"); _service.OpenWindowsIdentify(); }
-        catch (Exception ex) { _log.Error("Could not identify displays", ex); _lastResult.Text = "Identify failed: " + ex.Message; }
-    }
-
-    private void OnUpdateStatusChanged(UpdateStatus status)
-    {
-        if (InvokeRequired) { BeginInvoke(() => OnUpdateStatusChanged(status)); return; }
-        _updateStatus.Text = $"Update status: {status.Message}"; _downloadButton.Visible = status.State == UpdateState.Available;
-        _releaseNotes.Text = status.State == UpdateState.Available ? OneLine(status.ReleaseNotes ?? "") : "";
+        try { var text = _identifyDisplays(); _log.Info(text.Replace(Environment.NewLine, " | ")); MessageBox.Show(this, text, "Identify Displays"); _openDisplaySettings(); }
+        catch (Exception exception) { ShowError("Could not identify displays.", exception); }
     }
 
     private async Task DownloadAndInstallAsync()
@@ -143,12 +175,12 @@ internal sealed class MainForm : Form
         await _updates.DownloadAsync();
         if (_updates.Status.State == UpdateState.ReadyToRestart && MessageBox.Show(this, "Update downloaded. Restart now to install it?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes) _updates.ApplyAndRestart();
     }
-
-    private static Panel NewPanel(int width, int height, Color color) => new() { Width = width, Height = height, BackColor = color, Margin = new Padding(0, 0, 0, 6) };
-    private static Label TextLabel(string text, float size, bool bold = false) => new() { Text = text, ForeColor = Color.White, Font = new Font("Segoe UI", size, bold ? FontStyle.Bold : FontStyle.Regular), AutoEllipsis = true };
-    private static Label SectionTitle(string text, Point location) => new() { Text = text, ForeColor = Muted, Font = new Font("Segoe UI Semibold", 9), AutoSize = true, Location = location };
-    private static Button ActionButton(string text, Color color, EventHandler action) { var b = new Button { Text = text, BackColor = color, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand }; b.FlatAppearance.BorderSize = 0; b.Click += action; return b; }
-    private static Button SecondaryButton(string text, EventHandler action) { var b = ActionButton(text, Color.FromArgb(53, 64, 70), action); b.Size = new Size(256, 32); return b; }
-    private static Button SmallButton(string text, EventHandler action) { var b = SecondaryButton(text, action); b.Size = new Size(122, 30); return b; }
-    private static string OneLine(string value) => value.Replace("\r", " ").Replace("\n", " ");
+    private void OnUpdateStatusChanged(UpdateStatus status) { if (InvokeRequired) { BeginInvoke(() => OnUpdateStatusChanged(status)); return; } _updateStatus.Text = "Update status: " + status.Message; _downloadButton.Visible = status.State == UpdateState.Available; }
+    private void ShowError(string message, Exception exception) { _log.Error(message, exception); MessageBox.Show(this, $"{message}\n\n{exception.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error); }
+    private void ShowWarning(string message) => MessageBox.Show(this, message, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+    private static Panel Panel(Color color) => new() { Dock = DockStyle.Fill, BackColor = color };
+    private static Label LabelText(string text, float size, bool bold = false) => new() { Text = text, ForeColor = Color.White, Font = new Font("Segoe UI", size, bold ? FontStyle.Bold : FontStyle.Regular), AutoEllipsis = true };
+    private static Button Button(string text, Color color, EventHandler action) { var button = new Button { Text = text, BackColor = color, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand }; button.FlatAppearance.BorderSize = 0; button.Click += action; return button; }
+    private static string IconLabel(string icon) => icon.ToLowerInvariant() switch { "gamepad" => "GAME", "script" => "LIVE", "code" => "DEV", "work" => "WORK", "creative" => "EDIT", "presentation" => "SHOW", "travel" => "GO", _ => "ENV" };
+    private static EnvironmentDefinition Clone(EnvironmentDefinition source) => new() { Id = source.Id, Name = source.Name, Description = source.Description, Icon = source.Icon, Category = source.Category, Accent = source.Accent, Tags = [.. source.Tags], CreatedAt = source.CreatedAt, UpdatedAt = source.UpdatedAt, IsFavorite = source.IsFavorite, SortOrder = source.SortOrder, LegacyAliases = [.. source.LegacyAliases], Modules = source.Modules.Select(module => module.Clone()).ToList(), Metadata = new Dictionary<string, string>(source.Metadata, StringComparer.OrdinalIgnoreCase) };
 }
