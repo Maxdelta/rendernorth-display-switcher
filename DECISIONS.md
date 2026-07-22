@@ -45,6 +45,16 @@ The GUI compares the currently active source-to-target path topology against bot
 The installed edition uses Velopack 1.2.0 and the official public GitHub Releases source over HTTPS. Velopack owns feed parsing, package verification, download, apply, restart, install, and uninstall behavior; no custom executable downloader is used. Automatic checks occur only after normal GUI startup. Portable mode reports that automatic updates are unavailable.
 
 `Directory.Build.props` is the single version source. `Services/UpdateService.cs` contains the authoritative public update source: `https://github.com/Maxdelta/rendernorth-display-switcher`.
+
+## RenderNorth Environments modular architecture
+
+The product evolves from RenderNorth Display Switcher into RenderNorth Environments beginning with the planned v0.4.0 preview. An Environment is the primary workspace domain object and owns independently versioned capabilities implemented through `IEnvironmentModule`. Displays are the first capability, not the product boundary.
+
+`EnvironmentManager` orchestrates registered modules exclusively through lifecycle interfaces and generic result contracts. It must remain module-agnostic and activate enabled modules sequentially by `ActivationOrder`. Failed activation stops forward progress and rolls back changed modules in reverse order. Unknown module documents are preserved unchanged.
+
+The existing native display engine moves behind `DisplayModule` and `DisplayModuleService` without a casual rewrite. Legacy Game Mode and Script Mode data migrates backup-first and idempotently into environments retaining their names and the separate aliases `game` and `script`.
+
+For v0.4.0 updater continuity, retain package ID `RenderNorth.DisplaySwitcher`, `RenderNorthDisplaySwitcher.exe`, the install directory, repository, update feed, `UserData` path, and legacy launchers and shortcuts. Public-facing branding becomes RenderNorth Environments. See `docs/ARCHITECTURE_VISION.md` for the governing architecture and prohibited shortcuts.
 # v0.3.1 installation decisions
 
 - Use Velopack's standard `Desktop,StartMenuRoot` shortcuts for the normal GUI.

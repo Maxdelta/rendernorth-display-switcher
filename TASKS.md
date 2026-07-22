@@ -32,6 +32,79 @@
 - [ ] Add code signing and an installer if distribution expands
 - [ ] Add a real Stream Deck configuration screenshot or short switching demo GIF to the public README
 
+## RenderNorth Environments v0.4.0
+
+### Phase 1 - Architecture documentation
+
+- [x] Define the modular Environment architecture and lifecycle
+- [x] Record compatibility, transaction, persistence, and unknown-module rules
+- [x] Establish the approved implementation order
+
+### Phase 2 - Test foundation
+
+- [ ] Add a dedicated automated test project
+- [ ] Add domain-level fixtures for legacy profiles and module documents
+- [ ] Establish baseline compatibility tests
+
+### Phase 3 - Domain and persistence
+
+- [ ] Add Environment and EnvironmentCollection
+- [ ] Add ModuleDocument and independent schema versions
+- [ ] Add IEnvironmentModule and EnvironmentModuleRegistry
+- [ ] Add atomic EnvironmentRepository with unknown-module preservation
+
+### Phase 4 - Display extraction
+
+- [ ] Add DisplayModule and DisplayModuleService
+- [ ] Move display orchestration without changing native behavior
+- [ ] Preserve validation, detection, verification, and rollback
+
+### Phase 5 - Migration
+
+- [ ] Add backup-first LegacyMigrationService
+- [ ] Convert legacy Game Mode and Script Mode profiles without changing payloads
+- [ ] Verify migration idempotency and preserve legacy files
+
+### Phase 6 - Environment orchestration
+
+- [ ] Add module-agnostic EnvironmentManager lifecycle orchestration
+- [ ] Add reverse-order rollback and activation status persistence
+- [ ] Add create, rename, duplicate, delete, reorder, capture, activate, and detect
+
+### Phase 7 - CLI and compatibility
+
+- [ ] Add structured ID and name activation commands
+- [ ] Preserve `--game`, `--script`, and compatibility launchers
+- [ ] Preserve silent activation while the GUI is running
+
+### Phase 8 - UI
+
+- [ ] Replace fixed mode cards with the environment workspace UI
+- [ ] Add environment editor and current-environment status
+- [ ] Expose the Displays capability without internal module terminology
+
+### Phase 9 - Shortcut integration
+
+- [ ] Add stable GUID-based Desktop, Start menu, and custom shortcuts
+- [ ] Add copy, open, recreate, and delete shortcut actions
+- [ ] Preserve legacy Game and Script shortcuts
+
+### Phase 10 - Branding and documentation
+
+- [ ] Update current product-facing language to RenderNorth Environments
+- [ ] Document temporary compatibility identities
+- [ ] Preserve historical v0.3.x release records
+
+### Phase 11 - Installed migration testing
+
+- [ ] Test public v0.3.2 to local v0.4 migration
+- [ ] Verify backups, legacy launchers, ID activation, rename-safe shortcuts, restart, update, and uninstall
+- [ ] Record physical Stream Deck testing only after owner verification
+
+### Phase 12 - Release preparation
+
+- [ ] Stop and request owner approval before versioning, tagging, pushing, publishing, or changing the update feed
+
 ## v0.3.0
 
 - [x] Add polished RenderNorth GUI and profile cards
