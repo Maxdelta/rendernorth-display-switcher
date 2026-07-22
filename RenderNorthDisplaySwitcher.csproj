@@ -15,8 +15,8 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <InvariantGlobalization>true</InvariantGlobalization>
     <Authors>RenderNorth</Authors>
-    <Product>RenderNorth Display Switcher</Product>
-    <Description>Native Windows display-profile switching for dual-PC streaming setups.</Description>
+    <Product>RenderNorth Environments</Product>
+    <Description>Modular Windows workspace environments, beginning with native display configuration.</Description>
     <Copyright>Copyright © 2026 RenderNorth</Copyright>
   </PropertyGroup>
   <ItemGroup>

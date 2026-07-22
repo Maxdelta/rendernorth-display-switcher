@@ -42,58 +42,58 @@
 
 ### Phase 2 - Test foundation
 
-- [ ] Add a dedicated automated test project
-- [ ] Add domain-level fixtures for legacy profiles and module documents
-- [ ] Establish baseline compatibility tests
+- [x] Add a dedicated automated test project
+- [x] Add domain-level fixtures for legacy profiles and module documents
+- [x] Establish baseline compatibility tests
 
 ### Phase 3 - Domain and persistence
 
-- [ ] Add Environment and EnvironmentCollection
-- [ ] Add ModuleDocument and independent schema versions
-- [ ] Add IEnvironmentModule and EnvironmentModuleRegistry
-- [ ] Add atomic EnvironmentRepository with unknown-module preservation
+- [x] Add Environment and EnvironmentCollection
+- [x] Add ModuleDocument and independent schema versions
+- [x] Add IEnvironmentModule and EnvironmentModuleRegistry
+- [x] Add atomic EnvironmentRepository with unknown-module preservation
 
 ### Phase 4 - Display extraction
 
-- [ ] Add DisplayModule and DisplayModuleService
-- [ ] Move display orchestration without changing native behavior
-- [ ] Preserve validation, detection, verification, and rollback
+- [x] Add DisplayModule and DisplayModuleService
+- [x] Move display orchestration without changing native behavior
+- [x] Preserve validation, detection, verification, and rollback
 
 ### Phase 5 - Migration
 
-- [ ] Add backup-first LegacyMigrationService
-- [ ] Convert legacy Game Mode and Script Mode profiles without changing payloads
-- [ ] Verify migration idempotency and preserve legacy files
+- [x] Add backup-first LegacyMigrationService
+- [x] Convert legacy Game Mode and Script Mode profiles without changing payloads
+- [x] Verify migration idempotency and preserve legacy files
 
 ### Phase 6 - Environment orchestration
 
-- [ ] Add module-agnostic EnvironmentManager lifecycle orchestration
-- [ ] Add reverse-order rollback and activation status persistence
-- [ ] Add create, rename, duplicate, delete, reorder, capture, activate, and detect
+- [x] Add module-agnostic EnvironmentManager lifecycle orchestration
+- [x] Add reverse-order rollback and activation status persistence
+- [x] Add create, rename, duplicate, delete, reorder, capture, activate, and detect
 
 ### Phase 7 - CLI and compatibility
 
-- [ ] Add structured ID and name activation commands
-- [ ] Preserve `--game`, `--script`, and compatibility launchers
-- [ ] Preserve silent activation while the GUI is running
+- [x] Add structured ID and name activation commands
+- [x] Preserve `--game`, `--script`, and compatibility launchers
+- [x] Preserve silent activation while the GUI is running
 
 ### Phase 8 - UI
 
-- [ ] Replace fixed mode cards with the environment workspace UI
-- [ ] Add environment editor and current-environment status
-- [ ] Expose the Displays capability without internal module terminology
+- [x] Replace fixed mode cards with the environment workspace UI
+- [x] Add environment editor and current-environment status
+- [x] Expose the Displays capability without internal module terminology
 
 ### Phase 9 - Shortcut integration
 
-- [ ] Add stable GUID-based Desktop, Start menu, and custom shortcuts
-- [ ] Add copy, open, recreate, and delete shortcut actions
-- [ ] Preserve legacy Game and Script shortcuts
+- [x] Add stable GUID-based Desktop, Start menu, and custom shortcuts
+- [x] Add copy, open, recreate, and delete shortcut actions
+- [x] Preserve legacy Game and Script shortcuts
 
 ### Phase 10 - Branding and documentation
 
-- [ ] Update current product-facing language to RenderNorth Environments
-- [ ] Document temporary compatibility identities
-- [ ] Preserve historical v0.3.x release records
+- [x] Update current product-facing language to RenderNorth Environments
+- [x] Document temporary compatibility identities
+- [x] Preserve historical v0.3.x release records
 
 ### Phase 11 - Installed migration testing
 

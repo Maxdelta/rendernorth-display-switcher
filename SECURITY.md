@@ -6,6 +6,7 @@ Security fixes are provided for the latest published version.
 
 | Version | Supported |
 |---|---|
+| 0.4.x preview | Local testing only |
 | 0.3.x | Yes |
 | 0.2.x and earlier | No |
 
@@ -19,6 +20,6 @@ Please allow reasonable time for confirmation and remediation before public disc
 
 ## Scope notes
 
-The application stores profiles and logs locally beside the executable. Those files may contain the Windows machine name and monitor device paths. The project has no account system or telemetry.
+The application stores environments and logs locally. Those files may contain the Windows machine name, monitor device paths, environment names, and user-provided descriptions. The project has no account system or telemetry.
 
-The installed v0.3.0 edition contacts only the configured public GitHub Releases repository over HTTPS for update metadata and Velopack assets. It stores no GitHub credential. Velopack validates and applies its own packages; the application does not execute arbitrary downloaded files. Portable mode performs no update check.
+The installed edition contacts only the configured public GitHub Releases repository over HTTPS for update metadata and Velopack assets. It stores no GitHub credential. Velopack validates and applies its own packages; the application does not execute arbitrary downloaded files. Portable mode performs no update check.

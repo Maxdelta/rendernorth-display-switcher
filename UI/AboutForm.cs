@@ -10,17 +10,19 @@ internal sealed class AboutForm : Form
 
     public AboutForm(Func<Task> checkForUpdates)
     {
-        Text = "About RenderNorth Display Switcher";
+        Text = "About RenderNorth Environments";
         ClientSize = new Size(370, 275);
         FormBorderStyle = FormBorderStyle.FixedDialog;
         StartPosition = FormStartPosition.CenterParent;
         MaximizeBox = false;
         MinimizeBox = false;
         ShowInTaskbar = false;
+        BackColor = Color.FromArgb(24, 29, 33);
+        ForeColor = Color.White;
 
         var title = new Label
         {
-            Text = "RenderNorth Display Switcher",
+            Text = "RenderNorth Environments",
             Font = new Font(Font.FontFamily, 14, FontStyle.Bold),
             AutoSize = true,
             Location = new Point(30, 25)
@@ -37,6 +39,10 @@ internal sealed class AboutForm : Form
             Location = new Point(31, 181),
             Size = new Size(205, 32)
         };
+        updates.BackColor = Color.FromArgb(38, 198, 190);
+        updates.ForeColor = Color.White;
+        updates.FlatStyle = FlatStyle.Flat;
+        updates.FlatAppearance.BorderSize = 0;
         updates.Click += async (_, _) => { updates.Enabled = false; await checkForUpdates(); updates.Enabled = true; };
         var close = new Button
         {
@@ -45,6 +51,10 @@ internal sealed class AboutForm : Form
             Location = new Point(260, 235),
             Size = new Size(80, 28)
         };
+        close.BackColor = Color.FromArgb(53, 64, 70);
+        close.ForeColor = Color.White;
+        close.FlatStyle = FlatStyle.Flat;
+        close.FlatAppearance.BorderSize = 0;
 
         Controls.AddRange([title, version, creator, github, website, license, copyright, updates, close]);
         AcceptButton = close;

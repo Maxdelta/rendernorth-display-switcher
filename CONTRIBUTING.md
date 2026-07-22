@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for helping improve RenderNorth Display Switcher.
+Thank you for helping improve RenderNorth Environments.
 
 ## Before opening an issue
 
@@ -28,6 +28,9 @@ Create publish artifacts with:
 - Keep changes focused and explain the user-visible behavior.
 - Do not replace native Windows display APIs with external display-management dependencies.
 - Preserve rollback protection, stable monitor identity validation, and silent automatic mode.
+- Keep `EnvironmentManager` module-agnostic and preserve unknown module documents.
+- Add new capabilities through the registry and lifecycle instead of capability-specific manager branches.
+- Run the complete automated suite and test installed artifacts for operating-system integration changes.
 - Build all three projects with zero errors before submitting.
 - Document any hardware topology used for manual testing. Never describe a display switch as verified solely because compilation succeeded.
 - Update `CHANGELOG.md`, tests/checks, and relevant documentation when behavior changes.

@@ -1,76 +1,47 @@
-# RenderNorth Display Switcher
+# RenderNorth Environments
 
-## One-click monitor switching for dual-PC creators
+## Your PC should adapt to what you are doing.
 
-Move between game capture and a private script display without digging through Windows Display Settings during a live production.
+RenderNorth Environments is a Windows workspace launcher for saving and activating complete working contexts. Move between Gaming, Streaming, Development, Editing, Presentation, Work, Travel, or your own custom environments without rebuilding the workspace manually.
 
-RenderNorth Display Switcher saves two working Windows display layouts and restores either one from its desktop interface or a silent Stream Deck button. It was built around an Elgato HD60 X dual-PC workflow and uses native Windows display APIs—no OBS plugin, Streamlabs integration, or DisplayFusion dependency required.
+## The first capability: Displays
 
-## Features
+Version 0.4 captures and restores native Windows display configuration:
 
-- Save exact Game Mode and Script Mode display layouts.
-- Switch silently from dedicated Stream Deck launchers.
-- Identify monitors by stable device paths rather than changing display numbers.
-- Preserve saved display timing data whenever Windows allows it.
-- Roll back when an applied layout fails verification.
-- See the currently detected profile and last successful switch.
-- Keep local diagnostic logs with no accounts, advertising, analytics, or telemetry.
-- Install normally with optional updates or use the portable edition.
+- Active and inactive displays
+- Primary display
+- Duplicate and extend topology
+- Display positions
+- Resolution and supported refresh information
+- Stable monitor device identities
+- Rollback and post-activation verification
 
-## Benefits
+Displays are the first capability, not the product limit. The modular architecture can later add real Audio, Applications, Window Layout, OBS, Lighting, and other capabilities without rewriting the environment model.
 
-Stay focused on the stream. Keep scripts and notes private. Route the intended monitor to the capture card with one deliberate action. Reuse the display layouts you already verified in Windows instead of trusting a hardcoded topology.
+## Built for reliable activation
 
-## Screenshots
+Each environment has a permanent GUID. Names can change without breaking generated shortcuts. Capability activation is validated, ordered, logged, and treated as a transaction. Failed changes attempt rollback and never falsely mark an environment active.
 
-### Desktop application
+## Stream Deck ready
 
-![RenderNorth Display Switcher main window](../assets/screenshots/application-main-window.png)
+Create a Desktop, Start menu, or custom shortcut from any environment. Every shortcut targets the stable installed application and activates the environment by GUID, surviving updates and renames.
 
-### Game and Script layouts
+## Compatibility
 
-| Game Mode | Script Mode |
-|---|---|
-| ![Game Mode Windows layout](../assets/screenshots/windows-game-mode.png) | ![Script Mode Windows layout](../assets/screenshots/windows-script-mode-setup.png) |
-
-## Download
-
-Download the latest installer or portable Windows x64 archive from the [official GitHub release](https://github.com/Maxdelta/rendernorth-display-switcher/releases/latest).
-
-- **Installer:** recommended for everyday use and optional in-app updates.
-- **Portable:** extract and run without installation; update manually.
-
-Unsigned public binaries may trigger Windows SmartScreen. Confirm the download came from the official repository before continuing.
+The first preview migrates existing RenderNorth Display Switcher Game Mode and Script Mode data without deleting the originals. Existing commands, launchers, package identity, install location, update feed, and saved-data location remain compatible during the transition.
 
 ## System requirements
 
 - Windows 11 x64
-- A dual-PC or multi-display configuration recognized by Windows
-- An HDMI capture device exposed as a Windows display output
-- Elgato HD60 X for the originally verified hardware workflow; other models may work but are not individually verified
+- A display arrangement supported by Windows Display Settings
+- Optional Elgato Stream Deck for one-button activation
 
-## Source and documentation
+## Privacy
 
-The application is open source under the MIT License. View the [GitHub repository](https://github.com/Maxdelta/rendernorth-display-switcher) for source, setup instructions, release notes, security information, and contribution guidance.
+No account, advertising, analytics, or telemetry. Environments and logs stay local. The installed edition contacts GitHub Releases only for optional updates.
 
-## Frequently asked questions
+## Availability
 
-### Does it control OBS or Streamlabs?
+RenderNorth Environments v0.4 is undergoing local installed migration testing and is not yet publicly released. The current public v0.3.2 installer remains available at [GitHub Releases](https://github.com/Maxdelta/rendernorth-display-switcher/releases/latest).
 
-No. It changes the Windows display layout on the gaming PC. Your capture software continues receiving the signal sent to the capture device.
-
-### Will it expose my private script monitor?
-
-Script Mode restores the exact layout you saved. Test both profiles in your capture preview before going live.
-
-### Does Stream Deck switching show a popup?
-
-No. The included Game and Script launcher executables run silently, apply the selected profile, log the result, and exit.
-
-### Are updates forced?
-
-No. Installed builds can check for an update and let you choose whether to download and install it. Portable builds are updated manually.
-
-### Is my data uploaded?
-
-No analytics or telemetry is collected. Profiles and logs stay local. Installed builds contact the public GitHub Releases source over HTTPS for optional update metadata and packages.
+Created by **RenderNorth** and licensed under MIT.
