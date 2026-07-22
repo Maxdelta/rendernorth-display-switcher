@@ -28,6 +28,7 @@ internal sealed class MainForm : Form
     private readonly Label _lastSuccessful = LabelText("None recorded", 9);
     private readonly Label _updateStatus = LabelText("Not checked", 9);
     private readonly Button _downloadButton;
+    private Guid _detectedEnvironmentId;
 
     public MainForm(EnvironmentManager manager, UpdateService updates, AppLogger log,
         Func<ModuleDocument> captureDisplays, Func<string> identifyDisplays, Action openDisplaySettings, ShortcutService shortcuts)
@@ -38,12 +39,12 @@ internal sealed class MainForm : Form
         StartPosition = FormStartPosition.CenterScreen; BackColor = Background; ForeColor = Color.White;
         Font = new Font("Segoe UI", 9); AutoScaleMode = AutoScaleMode.Dpi;
 
-        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5, Padding = new Padding(18), BackColor = Background };
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 88)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 138));
-        root.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 58)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 112));
+        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5, Padding = new Padding(24, 18, 24, 14), BackColor = Background };
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 92)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 214));
+        root.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 104)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 48));
         root.Controls.Add(Header(), 0, 0); root.Controls.Add(CurrentCard(), 0, 1);
-        _environmentList.Dock = DockStyle.Fill; _environmentList.BackColor = Background; _environmentList.Padding = new Padding(0, 4, 0, 4);
-        root.Controls.Add(_environmentList, 0, 2); root.Controls.Add(Actions(), 0, 3);
+        _environmentList.Dock = DockStyle.Fill; _environmentList.FlowDirection = FlowDirection.LeftToRight; _environmentList.WrapContents = true; _environmentList.BackColor = Background; _environmentList.Padding = new Padding(0, 8, 0, 8);
+        root.Controls.Add(_environmentList, 0, 2); root.Controls.Add(CreatePanel(), 0, 3);
         _downloadButton = Button("Download and Install", Accent, async (_, _) => await DownloadAndInstallAsync()); _downloadButton.Visible = false;
         root.Controls.Add(StatusCard(), 0, 4); Controls.Add(root);
         _updates.StatusChanged += OnUpdateStatusChanged;
@@ -53,19 +54,22 @@ internal sealed class MainForm : Form
     private Control Header()
     {
         var panel = Panel(Card);
-        panel.Controls.Add(new Label { Text = "✦  RENDERNORTH", ForeColor = Accent, Font = new Font("Segoe UI Semibold", 9), AutoSize = true, Location = new Point(18, 12) });
-        panel.Controls.Add(new Label { Text = "Environments", ForeColor = Color.White, Font = new Font("Segoe UI Semibold", 25), AutoSize = true, Location = new Point(16, 29) });
-        panel.Controls.Add(new Label { Text = $"Your PC should adapt to what you are doing  •  v{AppVersion.Current}", ForeColor = Muted, AutoSize = true, Location = new Point(310, 49) });
+        panel.Controls.Add(new Label { Text = "✦  R E N D E R N O R T H", ForeColor = Accent, Font = new Font("Segoe UI Semibold", 9), AutoSize = true, Location = new Point(24, 14) });
+        panel.Controls.Add(new Label { Text = "Environments", ForeColor = Color.White, Font = new Font("Segoe UI Semibold", 29), AutoSize = true, Location = new Point(22, 31) });
+        panel.Controls.Add(new Label { Text = $"Your PC should adapt to what you are doing  •  v{AppVersion.Current}", ForeColor = Muted, AutoSize = true, Location = new Point(328, 53) });
+        var settings = Button("⚙  Settings", Color.FromArgb(44, 54, 60), (_, _) => new SettingsForm(_updates, _log).ShowDialog(this)); settings.Location = new Point(590, 28); settings.Size = new Size(120, 38); panel.Controls.Add(settings);
         return panel;
     }
 
     private Control CurrentCard()
     {
         var panel = Panel(Card); panel.Margin = new Padding(0, 6, 0, 6);
-        panel.Controls.Add(new Label { Text = "✦  ACTIVE ENVIRONMENT", ForeColor = Accent, AutoSize = true, Location = new Point(18, 13) });
-        _currentName.Location = new Point(18, 36); _currentName.Size = new Size(680, 32); _currentName.Font = new Font("Segoe UI Semibold", 21); panel.Controls.Add(_currentName);
-        _currentDetails.Location = new Point(20, 78); _currentDetails.Size = new Size(680, 22); _currentDetails.ForeColor = Muted; panel.Controls.Add(_currentDetails);
-        panel.Controls.Add(new Label { Text = "Ready to adapt your workspace", ForeColor = Color.LightGreen, AutoSize = true, Location = new Point(560, 18) }); return panel;
+        panel.Controls.Add(new Label { Text = "✦  ACTIVE ENVIRONMENT", ForeColor = Accent, AutoSize = true, Location = new Point(190, 22) });
+        _currentName.Location = new Point(190, 49); _currentName.Size = new Size(430, 42); _currentName.Font = new Font("Segoe UI Semibold", 27); panel.Controls.Add(_currentName);
+        _currentDetails.Location = new Point(192, 101); _currentDetails.Size = new Size(450, 34); _currentDetails.ForeColor = Muted; panel.Controls.Add(_currentDetails);
+        panel.Controls.Add(new Label { Text = "✦", Font = new Font("Segoe UI", 56), ForeColor = Accent, Location = new Point(42, 56), AutoSize = true });
+        var activate = Button("🚀  Activate", Accent, async (_, _) => { if (_detectedEnvironmentId != Guid.Empty) await ActivateAsync(_detectedEnvironmentId); }); activate.Location = new Point(590, 82); activate.Size = new Size(128, 42); panel.Controls.Add(activate);
+        panel.Controls.Add(new Label { Text = "●  Ready", ForeColor = Color.LightGreen, Font = new Font("Segoe UI Semibold", 11), AutoSize = true, Location = new Point(650, 32) }); return panel;
     }
 
     private Control Actions()
@@ -79,6 +83,17 @@ internal sealed class MainForm : Form
         };
         for (var index = 0; index < actions.Length; index++) { actions[index].Size = new Size(166, 38); actions[index].Location = new Point(index * 174, 8); panel.Controls.Add(actions[index]); }
         return panel;
+    }
+
+    private Control CreatePanel()
+    {
+        var panel = new RnCard { BackColor = Color.FromArgb(25, 55, 58), Padding = new Padding(18) };
+        var plus = LabelText("+", 34, true); plus.ForeColor = Accent; plus.Location = new Point(20, 26); plus.AutoSize = true;
+        var title = LabelText("Create New Environment", 15, true); title.ForeColor = Accent; title.Location = new Point(76, 24); title.AutoSize = true;
+        var copy = LabelText("Capture your current display setup or start from scratch.", 9); copy.ForeColor = Muted; copy.Location = new Point(77, 54); copy.AutoSize = true;
+        var capture = Button("▣  Capture Current Setup", Color.FromArgb(24, 137, 130), (_, _) => EditNew(true)); capture.Location = new Point(450, 28); capture.Size = new Size(170, 42);
+        var create = Button("＋  New Environment", Color.FromArgb(44, 54, 60), (_, _) => EditNew(false)); create.Location = new Point(630, 28); create.Size = new Size(140, 42);
+        panel.Controls.AddRange([plus, title, copy, capture, create]); return panel;
     }
 
     private Control StatusCard()
@@ -108,6 +123,7 @@ internal sealed class MainForm : Form
         try
         {
             var detected = await _manager.DetectAsync();
+            _detectedEnvironmentId = detected.Environment?.Id ?? Guid.Empty;
             _currentName.Text = detected.Environment?.Name ?? "Custom Configuration";
             _currentDetails.Text = detected.Environment is null ? "No matching environment" : $"{IconLabel(detected.Environment.Icon)}  {detected.Environment.Category ?? "Custom"}";
         }
@@ -116,17 +132,17 @@ internal sealed class MainForm : Form
 
     private Control EnvironmentCard(EnvironmentDefinition environment)
     {
-        var panel = Panel(Card); panel.Dock = DockStyle.None; panel.Width = Math.Max(680, _environmentList.ClientSize.Width - 24); panel.Height = 126; panel.Margin = new Padding(0, 0, 0, 9);
+        var panel = Panel(Card); panel.Dock = DockStyle.None; panel.Width = 220; panel.Height = 250; panel.Margin = new Padding(0, 0, 14, 14);
         var accent = CategoryColor(environment.Category); panel.Controls.Add(new Panel { BackColor = accent, Width = 5, Dock = DockStyle.Left });
-        var icon = LabelText(IconLabel(environment.Icon), 22, true); icon.BackColor = Color.FromArgb(45, accent.R, accent.G, accent.B); icon.Location = new Point(20, 25); icon.Size = new Size(58, 58); icon.TextAlign = ContentAlignment.MiddleCenter;
-        var name = LabelText(environment.Name, 13, true); name.Location = new Point(72, 13); name.Size = new Size(330, 25);
-        var details = LabelText($"{environment.Category ?? "Custom"}  •  {environment.Description ?? "Display workspace"}", 9); details.ForeColor = Muted; details.Location = new Point(73, 42); details.Size = new Size(350, 35);
-        var preview = new RnDisplayPreview { Category = environment.Category ?? "Custom", Location = new Point(300, 76) }; panel.Controls.Add(preview);
-        var activate = Button("Activate", Accent, async (_, _) => await ActivateAsync(environment.Id)); activate.Location = new Point(430, 35); activate.Size = new Size(112, 42);
-        var shortcut = Button("Stream Deck", accent, (_, _) => CreateShortcut(() => _shortcuts.CreateStartMenu(environment))); shortcut.Location = new Point(550, 35); shortcut.Size = new Size(102, 42);
-        var edit = Button("•••", Color.FromArgb(53, 64, 70), (_, _) => Edit(environment)); edit.Location = new Point(660, 35); edit.Size = new Size(42, 42);
+        var icon = LabelText(IconLabel(environment.Icon), 28, true); icon.BackColor = Color.FromArgb(45, accent.R, accent.G, accent.B); icon.Location = new Point(75, 18); icon.Size = new Size(70, 70); icon.TextAlign = ContentAlignment.MiddleCenter;
+        var name = LabelText(environment.Name, 13, true); name.Location = new Point(16, 100); name.Size = new Size(188, 25); name.TextAlign = ContentAlignment.MiddleCenter;
+        var details = LabelText(environment.Description ?? "Saved workspace", 9); details.ForeColor = Muted; details.Location = new Point(16, 130); details.Size = new Size(188, 35); details.TextAlign = ContentAlignment.MiddleCenter;
+        var preview = new RnDisplayPreview { Category = environment.Category ?? "Custom", Location = new Point(44, 164) }; panel.Controls.Add(preview);
+        var activate = Button("Activate", accent, async (_, _) => await ActivateAsync(environment.Id)); activate.Location = new Point(16, 204); activate.Size = new Size(122, 34);
+        var shortcut = Button("⋯", Color.FromArgb(53, 64, 70), (_, _) => CreateShortcut(() => _shortcuts.CreateStartMenu(environment))); shortcut.Location = new Point(144, 204); shortcut.Size = new Size(60, 34);
+        var edit = Button("", Color.Transparent, (_, _) => Edit(environment)); edit.Location = new Point(0, 0); edit.Size = new Size(0, 0); edit.Visible = false;
         Button? more = null;
-        more = Button("Manage", Color.FromArgb(53, 64, 70), (_, _) => ShowMore(environment, more!)); more.Location = new Point(660, 82); more.Size = new Size(74, 28);
+        more = Button("Manage", Color.FromArgb(53, 64, 70), (_, _) => ShowMore(environment, more!)); more.Location = new Point(148, 10); more.Size = new Size(60, 26);
         panel.Controls.AddRange([icon, name, details, preview, activate, shortcut, edit, more]); return panel;
     }
 
