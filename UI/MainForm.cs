@@ -9,6 +9,10 @@ internal sealed class MainForm : Form
     private static readonly Color Background = Color.FromArgb(24, 29, 33);
     private static readonly Color Card = Color.FromArgb(35, 42, 47);
     private static readonly Color Accent = Color.FromArgb(38, 198, 190);
+    private static readonly Color Gaming = Color.FromArgb(155, 109, 255);
+    private static readonly Color Streaming = Color.FromArgb(240, 93, 103);
+    private static readonly Color Development = Color.FromArgb(76, 154, 255);
+    private static readonly Color Presentation = Color.FromArgb(76, 203, 138);
     private static readonly Color Muted = Color.FromArgb(174, 187, 194);
     private readonly EnvironmentManager _manager;
     private readonly UpdateService _updates;
@@ -35,7 +39,7 @@ internal sealed class MainForm : Form
         Font = new Font("Segoe UI", 9); AutoScaleMode = AutoScaleMode.Dpi;
 
         var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5, Padding = new Padding(18), BackColor = Background };
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 82)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 104));
+        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 88)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 138));
         root.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 58)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 112));
         root.Controls.Add(Header(), 0, 0); root.Controls.Add(CurrentCard(), 0, 1);
         _environmentList.Dock = DockStyle.Fill; _environmentList.BackColor = Background; _environmentList.Padding = new Padding(0, 4, 0, 4);
@@ -49,7 +53,7 @@ internal sealed class MainForm : Form
     private Control Header()
     {
         var panel = Panel(Card);
-        panel.Controls.Add(new Label { Text = "RENDERNORTH", ForeColor = Accent, Font = new Font("Segoe UI Semibold", 9), AutoSize = true, Location = new Point(18, 12) });
+        panel.Controls.Add(new Label { Text = "✦  RENDERNORTH", ForeColor = Accent, Font = new Font("Segoe UI Semibold", 9), AutoSize = true, Location = new Point(18, 12) });
         panel.Controls.Add(new Label { Text = "Environments", ForeColor = Color.White, Font = new Font("Segoe UI Semibold", 25), AutoSize = true, Location = new Point(16, 29) });
         panel.Controls.Add(new Label { Text = $"Your PC should adapt to what you are doing  •  v{AppVersion.Current}", ForeColor = Muted, AutoSize = true, Location = new Point(310, 49) });
         return panel;
@@ -58,9 +62,10 @@ internal sealed class MainForm : Form
     private Control CurrentCard()
     {
         var panel = Panel(Card); panel.Margin = new Padding(0, 6, 0, 6);
-        panel.Controls.Add(new Label { Text = "CURRENT ENVIRONMENT", ForeColor = Muted, AutoSize = true, Location = new Point(18, 13) });
-        _currentName.Location = new Point(18, 35); _currentName.Size = new Size(680, 30); panel.Controls.Add(_currentName);
-        _currentDetails.Location = new Point(20, 70); _currentDetails.Size = new Size(680, 22); panel.Controls.Add(_currentDetails); return panel;
+        panel.Controls.Add(new Label { Text = "✦  ACTIVE ENVIRONMENT", ForeColor = Accent, AutoSize = true, Location = new Point(18, 13) });
+        _currentName.Location = new Point(18, 36); _currentName.Size = new Size(680, 32); _currentName.Font = new Font("Segoe UI Semibold", 21); panel.Controls.Add(_currentName);
+        _currentDetails.Location = new Point(20, 78); _currentDetails.Size = new Size(680, 22); _currentDetails.ForeColor = Muted; panel.Controls.Add(_currentDetails);
+        panel.Controls.Add(new Label { Text = "Ready to adapt your workspace", ForeColor = Color.LightGreen, AutoSize = true, Location = new Point(560, 18) }); return panel;
     }
 
     private Control Actions()
@@ -112,8 +117,9 @@ internal sealed class MainForm : Form
 
     private Control EnvironmentCard(EnvironmentDefinition environment)
     {
-        var panel = Panel(Card); panel.Dock = DockStyle.None; panel.Width = Math.Max(680, _environmentList.ClientSize.Width - 24); panel.Height = 92; panel.Margin = new Padding(0, 0, 0, 7);
-        var icon = LabelText(IconLabel(environment.Icon), 18, true); icon.Location = new Point(16, 26); icon.Size = new Size(48, 42); icon.TextAlign = ContentAlignment.MiddleCenter;
+        var panel = Panel(Card); panel.Dock = DockStyle.None; panel.Width = Math.Max(680, _environmentList.ClientSize.Width - 24); panel.Height = 112; panel.Margin = new Padding(0, 0, 0, 9);
+        var accent = CategoryColor(environment.Category); panel.Controls.Add(new Panel { BackColor = accent, Width = 5, Dock = DockStyle.Left });
+        var icon = LabelText(IconLabel(environment.Icon), 22, true); icon.BackColor = Color.FromArgb(45, accent.R, accent.G, accent.B); icon.Location = new Point(20, 25); icon.Size = new Size(58, 58); icon.TextAlign = ContentAlignment.MiddleCenter;
         var name = LabelText(environment.Name, 13, true); name.Location = new Point(72, 13); name.Size = new Size(330, 25);
         var details = LabelText($"{environment.Category ?? "Custom"}  •  {environment.Description ?? "Display workspace"}", 9); details.ForeColor = Muted; details.Location = new Point(73, 42); details.Size = new Size(350, 35);
         var activate = Button("Activate", Accent, async (_, _) => await ActivateAsync(environment.Id)); activate.Location = new Point(430, 24); activate.Size = new Size(112, 42);
@@ -219,5 +225,6 @@ internal sealed class MainForm : Form
     private static Label LabelText(string text, float size, bool bold = false) => new() { Text = text, ForeColor = Color.White, Font = new Font("Segoe UI", size, bold ? FontStyle.Bold : FontStyle.Regular), AutoEllipsis = true };
     private static Button Button(string text, Color color, EventHandler action) { var button = new Button { Text = text, BackColor = color, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand }; button.FlatAppearance.BorderSize = 0; button.Click += action; return button; }
     private static string IconLabel(string icon) => icon.ToLowerInvariant() switch { "gamepad" => "🎮", "script" => "🎥", "code" => "💻", "work" => "🧰", "creative" => "🎨", "presentation" => "📺", "travel" => "✈", "camera" => "📷", "microphone" => "🎙", "monitor" => "🖥", _ => "◆" };
+    private static Color CategoryColor(string? category) => category?.ToLowerInvariant() switch { "gaming" => Gaming, "streaming" => Streaming, "development" => Development, "presentation" => Presentation, _ => Accent };
     private static EnvironmentDefinition Clone(EnvironmentDefinition source) => new() { Id = source.Id, Name = source.Name, Description = source.Description, Icon = source.Icon, Category = source.Category, Accent = source.Accent, Tags = [.. source.Tags], CreatedAt = source.CreatedAt, UpdatedAt = source.UpdatedAt, IsFavorite = source.IsFavorite, SortOrder = source.SortOrder, LegacyAliases = [.. source.LegacyAliases], Modules = source.Modules.Select(module => module.Clone()).ToList(), Metadata = new Dictionary<string, string>(source.Metadata, StringComparer.OrdinalIgnoreCase) };
 }
