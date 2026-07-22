@@ -101,8 +101,8 @@ internal sealed class MainForm : Form
         foreach (var environment in collection.Environments.OrderBy(item => item.SortOrder).ThenBy(item => item.Name)) _environmentList.Controls.Add(EnvironmentCard(environment));
         if (collection.Environments.Count == 0)
         {
-            var empty = LabelText("No environments yet. Capture the current setup to create your first workspace.", 11);
-            empty.ForeColor = Muted; empty.Size = new Size(690, 70); empty.TextAlign = ContentAlignment.MiddleCenter; _environmentList.Controls.Add(empty);
+            var empty = LabelText("✦  Welcome to RenderNorth Environments\n\nYour PC should adapt to what you're doing.\nCreate your first environment by saving your current display setup.\n\nPopular starting points:  Gaming   •   Development   •   Streaming   •   Presentation", 11);
+            empty.ForeColor = Color.White; empty.Size = new Size(690, 118); empty.TextAlign = ContentAlignment.MiddleCenter; _environmentList.Controls.Add(empty);
         }
         _environmentList.ResumeLayout(); _lastResult.Text = "Last activation: " + collection.ActivationStatus.LastResult;
         _lastSuccessful.Text = "Last successful activation: " + (collection.ActivationStatus.LastSuccessfulAt?.ToLocalTime().ToString("g") ?? "None recorded");
@@ -122,11 +122,12 @@ internal sealed class MainForm : Form
         var icon = LabelText(IconLabel(environment.Icon), 22, true); icon.BackColor = Color.FromArgb(45, accent.R, accent.G, accent.B); icon.Location = new Point(20, 25); icon.Size = new Size(58, 58); icon.TextAlign = ContentAlignment.MiddleCenter;
         var name = LabelText(environment.Name, 13, true); name.Location = new Point(72, 13); name.Size = new Size(330, 25);
         var details = LabelText($"{environment.Category ?? "Custom"}  •  {environment.Description ?? "Display workspace"}", 9); details.ForeColor = Muted; details.Location = new Point(73, 42); details.Size = new Size(350, 35);
+        var preview = LabelText(Preview(environment.Category), 9, true); preview.ForeColor = accent; preview.Location = new Point(300, 80); preview.AutoSize = true;
         var activate = Button("Activate", Accent, async (_, _) => await ActivateAsync(environment.Id)); activate.Location = new Point(430, 24); activate.Size = new Size(112, 42);
         var edit = Button("Edit", Color.FromArgb(53, 64, 70), (_, _) => Edit(environment)); edit.Location = new Point(550, 24); edit.Size = new Size(74, 42);
         Button? more = null;
         more = Button("•••", Color.FromArgb(53, 64, 70), (_, _) => ShowMore(environment, more!)); more.Location = new Point(632, 24); more.Size = new Size(48, 42);
-        panel.Controls.AddRange([icon, name, details, activate, edit, more]); return panel;
+        panel.Controls.AddRange([icon, name, details, preview, activate, edit, more]); return panel;
     }
 
     private async Task ActivateAsync(Guid id)
@@ -226,5 +227,6 @@ internal sealed class MainForm : Form
     private static Button Button(string text, Color color, EventHandler action) { var button = new Button { Text = text, BackColor = color, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand }; button.FlatAppearance.BorderSize = 0; button.Click += action; return button; }
     private static string IconLabel(string icon) => icon.ToLowerInvariant() switch { "gamepad" => "🎮", "script" => "🎥", "code" => "💻", "work" => "🧰", "creative" => "🎨", "presentation" => "📺", "travel" => "✈", "camera" => "📷", "microphone" => "🎙", "monitor" => "🖥", _ => "◆" };
     private static Color CategoryColor(string? category) => category?.ToLowerInvariant() switch { "gaming" => Gaming, "streaming" => Streaming, "development" => Development, "presentation" => Presentation, _ => Accent };
+    private static string Preview(string? category) => category?.ToLowerInvariant() switch { "gaming" => "▣══▣  3 displays  •  Elgato ready", "streaming" => "▣──▣  3 displays  •  Capture ready", "development" => "▣  ▣  ▣  3 displays  •  Extended", _ => "▣  ▣  Display setup saved" };
     private static EnvironmentDefinition Clone(EnvironmentDefinition source) => new() { Id = source.Id, Name = source.Name, Description = source.Description, Icon = source.Icon, Category = source.Category, Accent = source.Accent, Tags = [.. source.Tags], CreatedAt = source.CreatedAt, UpdatedAt = source.UpdatedAt, IsFavorite = source.IsFavorite, SortOrder = source.SortOrder, LegacyAliases = [.. source.LegacyAliases], Modules = source.Modules.Select(module => module.Clone()).ToList(), Metadata = new Dictionary<string, string>(source.Metadata, StringComparer.OrdinalIgnoreCase) };
 }
