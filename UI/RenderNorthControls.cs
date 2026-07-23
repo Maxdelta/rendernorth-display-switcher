@@ -11,6 +11,7 @@ internal static class RnTheme
     public static readonly Color PrimaryText = Color.FromArgb(230, 237, 243);
     public static readonly Color SecondaryText = Color.FromArgb(155, 167, 180);
     public static readonly Color Accent = Color.FromArgb(0, 212, 196);
+    public static readonly Color Purple = Color.FromArgb(157, 78, 221);
     public static readonly Color Success = Color.FromArgb(52, 199, 89);
 
     public static Color OpaqueAncestorBackColor(Control control)
@@ -24,7 +25,7 @@ internal static class RnTheme
 
 internal class RnCard : Panel
 {
-    public int Radius { get; set; } = 12;
+    public int Radius { get; set; } = 14;
     public Color BorderColor { get; set; } = RnTheme.Border;
     public bool Hovered { get; private set; }
 
@@ -58,7 +59,7 @@ internal class RnCard : Panel
         using var surfacePath = RoundedPath(surfaceBounds, radius);
         using var shadow = new SolidBrush(Color.FromArgb(88, 8, 13, 18));
         using var surface = new SolidBrush(BackColor);
-        using var border = new Pen(Hovered ? Color.FromArgb(56, 73, 88) : BorderColor);
+        using var border = new Pen(Hovered ? Color.FromArgb(56, 88, 96) : BorderColor);
         e.Graphics.FillPath(shadow, shadowPath);
         e.Graphics.FillPath(surface, surfacePath);
         e.Graphics.DrawPath(border, surfacePath);
@@ -80,7 +81,8 @@ internal class RnButton : Button
     public RnButton(Color color)
     {
         _primary = Math.Max(color.R, Math.Max(color.G, color.B)) - Math.Min(color.R, Math.Min(color.G, color.B)) > 32;
-        _baseColor = _primary ? RnTheme.Accent : RnTheme.Control;
+        var usesPurpleAccent = color.B > color.G && color.R > color.G;
+        _baseColor = _primary ? (usesPurpleAccent ? RnTheme.Purple : RnTheme.Accent) : RnTheme.Control;
         BackColor = _baseColor;
         FlatStyle = FlatStyle.Flat;
         FlatAppearance.BorderSize = 0;
@@ -92,10 +94,10 @@ internal class RnButton : Button
         UseVisualStyleBackColor = false;
         SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
     }
-    protected override void OnMouseEnter(EventArgs e) { base.OnMouseEnter(e); BackColor = _primary ? Color.FromArgb(20, 225, 209) : Color.FromArgb(34, 47, 60); }
+    protected override void OnMouseEnter(EventArgs e) { base.OnMouseEnter(e); BackColor = _primary ? ControlPaint.Light(_baseColor, .08f) : Color.FromArgb(34, 47, 60); }
     protected override void OnMouseLeave(EventArgs e) { base.OnMouseLeave(e); BackColor = _baseColor; }
-    protected override void OnMouseDown(MouseEventArgs e) { base.OnMouseDown(e); BackColor = _primary ? Color.FromArgb(0, 184, 171) : Color.FromArgb(22, 31, 40); }
-    protected override void OnMouseUp(MouseEventArgs e) { base.OnMouseUp(e); BackColor = ClientRectangle.Contains(PointToClient(Cursor.Position)) ? (_primary ? Color.FromArgb(20, 225, 209) : Color.FromArgb(34, 47, 60)) : _baseColor; }
+    protected override void OnMouseDown(MouseEventArgs e) { base.OnMouseDown(e); BackColor = _primary ? ControlPaint.Dark(_baseColor, .10f) : Color.FromArgb(22, 31, 40); }
+    protected override void OnMouseUp(MouseEventArgs e) { base.OnMouseUp(e); BackColor = ClientRectangle.Contains(PointToClient(Cursor.Position)) ? (_primary ? ControlPaint.Light(_baseColor, .08f) : Color.FromArgb(34, 47, 60)) : _baseColor; }
     protected override void OnPaintBackground(PaintEventArgs e) { }
     protected override void OnPaint(PaintEventArgs e)
     {
@@ -105,7 +107,7 @@ internal class RnButton : Button
         var bounds = new Rectangle(1, 1, Math.Max(1, ClientSize.Width - 3), Math.Max(1, ClientSize.Height - 3));
         using var path = RnCard.RoundedPath(bounds, 8);
         using var fill = new SolidBrush(BackColor);
-        using var border = new Pen(_primary ? Color.FromArgb(50, 255, 255, 255) : RnTheme.Border);
+        using var border = new Pen(_primary ? Color.FromArgb(76, _baseColor) : RnTheme.Border);
         e.Graphics.FillPath(fill, path);
         e.Graphics.DrawPath(border, path);
         TextRenderer.DrawText(e.Graphics, Text, Font, bounds, ForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);

@@ -4,6 +4,7 @@ internal sealed class RnHeroCard : RnCard
 {
     public RnHeroCard(string name, string details, bool canActivate, Func<Task>? activate, Action capture)
     {
+        var heroAccent = canActivate ? RnTheme.Purple : RnTheme.Accent;
         Dock = DockStyle.Fill;
         AutoSize = true;
         AutoSizeMode = AutoSizeMode.GrowAndShrink;
@@ -36,7 +37,7 @@ internal sealed class RnHeroCard : RnCard
         };
         iconContainer.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         iconContainer.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        iconContainer.Controls.Add(new RnIconBadge(RnTheme.Accent, "✦")
+        iconContainer.Controls.Add(new RnIconBadge(heroAccent, "✦")
         {
             AutoSize = true,
             Anchor = AnchorStyles.None,
@@ -62,7 +63,7 @@ internal sealed class RnHeroCard : RnCard
         content.Controls.Add(new Label
         {
             Text = "✦  ACTIVE ENVIRONMENT",
-            ForeColor = RnTheme.Accent,
+            ForeColor = heroAccent,
             AutoSize = true,
             Margin = new Padding(0, 0, 0, 6),
             Anchor = AnchorStyles.Left
