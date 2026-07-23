@@ -51,14 +51,15 @@ internal sealed class MainForm : Form
         Shown += async (_, _) => { await RefreshAsync(); await _updates.CheckAsync(); };
     }
 
-    private Control Header()
+    private Control Header() => new RnHeader(AppVersion.Current, (_, _) => new SettingsForm(_updates, _log).ShowDialog(this), async (_, _) => await _updates.CheckAsync());
+    /*
     {
         var panel = Panel(Card);
         panel.Controls.Add(new Label { Text = "✦  RENDERNORTH", ForeColor = Accent, Font = new Font("Segoe UI Semibold", 9), AutoSize = true, Location = new Point(18, 12) });
         panel.Controls.Add(new Label { Text = "Environments", ForeColor = Color.White, Font = new Font("Segoe UI Semibold", 25), AutoSize = true, Location = new Point(16, 29) });
         panel.Controls.Add(new Label { Text = $"Your PC should adapt to what you are doing  •  v{AppVersion.Current}", ForeColor = Muted, AutoSize = true, Location = new Point(310, 49) });
         return panel;
-    }
+    } */
 
     private Control CurrentCard()
     {

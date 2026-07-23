@@ -8,6 +8,7 @@ internal static class LayoutTokens
     public const int CardInset = 12;
     public const int HeroInset = 18;
     public const int StatusInset = 10;
+    public const int HeaderPadding = 14;
     public const int ButtonHeight = 36;
     public const int MinCardWidth = 210;
     public const int PreferredCardWidth = 250;
