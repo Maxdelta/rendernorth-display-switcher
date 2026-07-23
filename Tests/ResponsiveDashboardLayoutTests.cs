@@ -59,6 +59,11 @@ public sealed class ResponsiveDashboardLayoutTests
                     dashboard.PerformLayout();
                     emptyState.PerformLayout();
                     quickActions.PerformLayout();
+                    var stableBounds = quickActions.Bounds;
+
+                    emptyState.ApplyAvailableWidth(availableWidth);
+                    quickActions.ApplyAvailableWidth(availableWidth);
+                    dashboard.PerformLayout();
 
                     Assert.True(emptyState.ContentHost.Visible);
                     Assert.True(emptyState.ContentHost.Width > 0);
@@ -68,11 +73,25 @@ public sealed class ResponsiveDashboardLayoutTests
                         category => Assert.Contains(AllControls(emptyState).OfType<Button>(), button => button.Text.Contains(category, StringComparison.Ordinal)));
                     Assert.Contains(AllControls(emptyState).OfType<Button>(), button => button.Text == "Capture Current Setup");
                     Assert.Contains(AllControls(emptyState).OfType<Button>(), button => button.Text == "New Environment");
+                    Assert.Single(AllControls(dashboard).OfType<RnCreatePanel>());
+                    Assert.Same(dashboard, quickActions.Parent);
                     Assert.True(quickActions.Visible);
+                    Assert.True(quickActions.Width > 0);
+                    Assert.True(quickActions.Height > 0);
+                    Assert.Equal(4, quickActions.ActionColumnCount);
+                    Assert.True(quickActions.Top >= emptyState.Bottom);
+                    Assert.Equal(stableBounds, quickActions.Bounds);
                     Assert.True(quickActions.Bottom <= dashboard.DisplayRectangle.Bottom);
                     Assert.True(dashboard.Width <= scroll.DisplayRectangle.Width);
                     Assert.False(scroll.HorizontalScroll.Visible);
                 }
+
+                quickActions.ApplyAvailableWidth(640);
+                Assert.Equal(2, quickActions.ActionColumnCount);
+                quickActions.ApplyAvailableWidth(690);
+                Assert.Equal(2, quickActions.ActionColumnCount);
+                quickActions.ApplyAvailableWidth(740);
+                Assert.Equal(4, quickActions.ActionColumnCount);
             }
             catch (Exception exception)
             {

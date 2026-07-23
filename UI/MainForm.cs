@@ -21,7 +21,7 @@ internal sealed class MainForm : Form
     private readonly Func<string> _identifyDisplays;
     private readonly Action _openDisplaySettings;
     private readonly ShortcutService _shortcuts;
-    private readonly FlowLayoutPanel _environmentList = new() { FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true };
+    private readonly FlowLayoutPanel _environmentList = new() { FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = false };
     private readonly Panel _dashboardScroll;
     private readonly TableLayoutPanel _dashboardContent;
     private readonly RnCreatePanel _quickActions;
@@ -33,6 +33,7 @@ internal sealed class MainForm : Form
     private readonly Button _downloadButton;
     private Guid _detectedEnvironmentId;
     private bool _dashboardLayoutInProgress;
+    private int _dashboardLayoutWidth = -1;
 
     public MainForm(EnvironmentManager manager, UpdateService updates, AppLogger log,
         Func<ModuleDocument> captureDisplays, Func<string> identifyDisplays, Action openDisplaySettings, ShortcutService shortcuts)
@@ -48,18 +49,14 @@ internal sealed class MainForm : Form
         root.Controls.Add(Header(), 0, 0); root.Controls.Add(CurrentCard(), 0, 1);
         _dashboardScroll = new Panel { Dock = DockStyle.Fill, AutoScroll = true, BackColor = Background, Padding = new Padding(0, LayoutTokens.SectionGap, 0, LayoutTokens.SectionGap) };
         _dashboardContent = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 1, RowCount = 2, BackColor = Background };
+        _dashboardContent.RowStyles.Add(new RowStyle(SizeType.AutoSize)); _dashboardContent.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         _environmentList.Dock = DockStyle.Top; _environmentList.AutoSize = true; _environmentList.AutoSizeMode = AutoSizeMode.GrowAndShrink; _environmentList.BackColor = Background; _environmentList.Padding = new Padding(0, 4, 0, 4);
         _quickActions = (RnCreatePanel)Actions();
         _dashboardContent.Controls.Add(_environmentList, 0, 0); _dashboardContent.Controls.Add(_quickActions, 0, 1); _dashboardScroll.Controls.Add(_dashboardContent); root.Controls.Add(_dashboardScroll, 0, 2);
         _downloadButton = Button("Download and Install", Accent, async (_, _) => await DownloadAndInstallAsync()); _downloadButton.Visible = false;
         root.Controls.Add(StatusCard(), 0, 3); Controls.Add(root);
         _dashboardScroll.HorizontalScroll.Enabled = false;
-        _dashboardScroll.Layout += (_, _) => RelayoutDashboard();
         _dashboardScroll.ClientSizeChanged += (_, _) => RelayoutDashboard();
-        Resize += (_, _) => RelayoutDashboard();
-        ClientSizeChanged += (_, _) => RelayoutDashboard();
-        DpiChanged += (_, _) => RelayoutDashboard();
-        FontChanged += (_, _) => RelayoutDashboard();
         _updates.StatusChanged += OnUpdateStatusChanged;
         Shown += async (_, _) => { await RefreshAsync(); await _updates.CheckAsync(); };
     }
@@ -164,9 +161,16 @@ internal sealed class MainForm : Form
         _dashboardLayoutInProgress = true;
         try
         {
+            var displayWidth = Math.Min(_dashboardScroll.ClientSize.Width, _dashboardScroll.DisplayRectangle.Width);
             var scrollbarWidth = _dashboardScroll.VerticalScroll.Visible ? SystemInformation.VerticalScrollBarWidth : 0;
-            var availableWidth = Math.Max(1, _dashboardScroll.ClientSize.Width - _dashboardScroll.Padding.Horizontal - scrollbarWidth);
+            var availableWidth = Math.Max(1, displayWidth - _dashboardScroll.Padding.Horizontal - scrollbarWidth);
+            if (availableWidth == _dashboardLayoutWidth)
+                return;
+
+            _dashboardLayoutWidth = availableWidth;
             var exactWidth = new Size(availableWidth, 0);
+            _dashboardScroll.SuspendLayout();
+            _dashboardContent.SuspendLayout();
             _dashboardContent.MinimumSize = exactWidth;
             _dashboardContent.MaximumSize = exactWidth;
             _environmentList.MinimumSize = exactWidth;
@@ -181,7 +185,8 @@ internal sealed class MainForm : Form
             _quickActions.ApplyAvailableWidth(availableWidth);
             _dashboardScroll.HorizontalScroll.Visible = false;
             _dashboardScroll.HorizontalScroll.Enabled = false;
-            _dashboardContent.PerformLayout();
+            _dashboardContent.ResumeLayout(true);
+            _dashboardScroll.ResumeLayout(true);
         }
         finally
         {

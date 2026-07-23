@@ -8,7 +8,6 @@ internal sealed class RnEmptyState : RnCard
     public RnEmptyState(Action capture, Action create)
     {
         Dock = DockStyle.Top;
-        Anchor = AnchorStyles.Left | AnchorStyles.Right;
         AutoSize = true;
         AutoSizeMode = AutoSizeMode.GrowAndShrink;
         BorderColor = Color.FromArgb(64, RnTheme.Accent);
@@ -172,9 +171,11 @@ internal sealed class RnEmptyState : RnCard
 
         var outerWidth = Math.Max(1, availableWidth - Margin.Horizontal);
         var contentWidth = Math.Min(MaximumContentWidth, Math.Max(1, outerWidth - Padding.Horizontal));
+        if (MinimumSize.Width == outerWidth && MaximumSize.Width == outerWidth && _content.MaximumSize.Width == contentWidth)
+            return;
+
         MinimumSize = new Size(outerWidth, 0);
         MaximumSize = new Size(outerWidth, 0);
         _content.MaximumSize = new Size(contentWidth, 0);
-        PerformLayout();
     }
 }
