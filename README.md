@@ -13,7 +13,12 @@ The v0.4 preview implements the first environment capability: **Displays**. It c
 
 ## Early Access Status
 
-RenderNorth Environments v0.4.0 is an Early Access build prepared for owner review. It is not yet a public release. Existing users should continue using their current installed release until v0.4.0 receives explicit publication approval.
+RenderNorth Environments v0.4.0 is an Early Access private beta released as a GitHub prerelease for Windows 11 x64. The installer is unsigned, so Windows may display an Unknown Publisher or Microsoft Defender SmartScreen warning.
+
+- [Private Beta v0.4.0 release](https://github.com/Maxdelta/rendernorth-display-switcher/releases/tag/v0.4.0-private-beta)
+- Installer: `RenderNorth-Environments-Private-Beta-Setup-v0.4.0.exe`
+- SHA-256: `B8D816A2A1FEA4490D0BA5C90C4D8B335998A008418D35D6A1154B2A74F5DAB3`
+- [Release notes](docs/releases/v0.4.0.md)
 
 ## What Is an Environment?
 
@@ -124,7 +129,7 @@ cd rendernorth-display-switcher
 
 The build script compiles the main application and compatibility launchers, then runs the dedicated xUnit test project. Builds must remain warning-free.
 
-Publishing and release packaging remain intentionally unchanged until the v0.4 installed migration path is approved. See [Releasing](docs/RELEASING.md).
+Private Beta v0.4.0 has completed build, test, install, upgrade, reinstall, and download verification. See [Releasing](docs/RELEASING.md) for the release process and [RN-014 closeout](docs/handoffs/RN-014_CLOSEOUT.md) for the verified release record.
 
 ## Data and Privacy
 

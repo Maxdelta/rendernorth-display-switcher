@@ -98,12 +98,17 @@
 ### Phase 11 - Installed migration testing
 
 - [x] Test public v0.3.2 to local v0.4 migration
-- [ ] Verify backups, legacy launchers, ID activation, rename-safe shortcuts, restart, update, and uninstall
+- [x] Verify backups, legacy launchers, ID activation, rename-safe shortcuts, restart, update, and uninstall
 - [x] Record physical Stream Deck testing after owner verification
 
 ### Phase 12 - Release preparation
 
-- [ ] Stop and request owner approval before versioning, tagging, pushing, publishing, or changing the update feed
+- [x] Receive owner approval before versioning, tagging, pushing, and publishing
+- [x] Publish Private Beta v0.4.0 from `c8bcb3f7a343754cc78525de1d98acadddba9e3d`
+- [x] Verify the anonymous Windows installer download and SHA-256
+- [x] Close RN-014 as **Complete - Private Beta Released** on 2026-07-23
+
+Next project: **RN-015 - RenderNorth Website - Environments Private Beta Launch**. Website work remains outside this repository and outside RN-014.
 
 ## v0.3.0
 

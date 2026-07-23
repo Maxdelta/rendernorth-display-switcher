@@ -55,6 +55,14 @@ The product evolves from RenderNorth Display Switcher into RenderNorth Environme
 The existing native display engine moves behind `DisplayModule` and `DisplayModuleService` without a casual rewrite. Legacy Game Mode and Script Mode data migrates backup-first and idempotently into environments retaining their names and the separate aliases `game` and `script`.
 
 For v0.4.0 updater continuity, retain package ID `RenderNorth.DisplaySwitcher`, `RenderNorthDisplaySwitcher.exe`, the install directory, repository, update feed, `UserData` path, and legacy launchers and shortcuts. Public-facing branding becomes RenderNorth Environments. See `docs/ARCHITECTURE_VISION.md` for the governing architecture and prohibited shortcuts.
+
+## RN-014 private beta closeout
+
+RenderNorth Environments is the public product name. The GitHub repository remains `rendernorth-display-switcher`.
+
+For the v0.4.x line, the executable and package identity remain unchanged to preserve installer compatibility, updater compatibility, launcher compatibility, Stream Deck shortcuts, and user-data continuity. Renaming the repository, package, or executable is deferred to a dedicated future migration.
+
+UI polish is frozen for v0.4.0. New feature development is deferred until private-beta feedback is collected. Website launch work is outside RN-014 and is assigned to the separate RN-015 website task.
 # v0.3.1 installation decisions
 
 - Use Velopack's standard `Desktop,StartMenuRoot` shortcuts for the normal GUI.

@@ -2,7 +2,11 @@
 
 ## Milestone
 
-Phase 11 installed migration testing is complete. The stable shortcut-root correction and physical Stream Deck verification are complete. v0.4.0 remains unpublished pending explicit approval.
+RN-014 is **Complete - Private Beta Released** as of 2026-07-23. RenderNorth Environments Private Beta v0.4.0 was published from `c8bcb3f7a343754cc78525de1d98acadddba9e3d` under tag `v0.4.0-private-beta`; the approved Windows installer and checksum were verified through anonymous download.
+
+The formal project registry, verification record, known limitations, compatibility decisions, and handoff are in [RN-014_CLOSEOUT.md](RN-014_CLOSEOUT.md).
+
+The next project is **RN-015 - RenderNorth Website - Environments Private Beta Launch**, to be handled separately in the website repository.
 
 ## Features completed
 
