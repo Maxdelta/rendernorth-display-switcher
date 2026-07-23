@@ -2,6 +2,7 @@ namespace RenderNorth.DisplaySwitcher.UI;
 
 internal sealed class RnCreatePanel : RnCard
 {
+    private const int MaximumContentWidth = 760;
     private const int CollapseBelowWidth = 660;
     private const int ExpandAboveWidth = 700;
     private const int ActionRowHeight = 52;
@@ -59,12 +60,12 @@ internal sealed class RnCreatePanel : RnCard
         _actions = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
-            AutoSize = false,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
             ColumnCount = 4,
             RowCount = 1,
             BackColor = Color.Transparent,
-            Margin = Padding.Empty,
-            MinimumSize = new Size(0, ActionRowHeight)
+            Margin = Padding.Empty
         };
         ConfigureActionGrid(compact: false);
 
@@ -92,7 +93,7 @@ internal sealed class RnCreatePanel : RnCard
             return;
 
         var outerWidth = Math.Max(1, availableWidth - Margin.Horizontal);
-        var contentWidth = Math.Max(1, outerWidth - Padding.Horizontal);
+        var contentWidth = Math.Min(MaximumContentWidth, Math.Max(1, outerWidth - Padding.Horizontal));
         var compact = _compactActions ? contentWidth < ExpandAboveWidth : contentWidth < CollapseBelowWidth;
         var widthChanged = MinimumSize.Width != outerWidth || MaximumSize.Width != outerWidth ||
             _content.MinimumSize.Width != contentWidth || _content.MaximumSize.Width != contentWidth;
