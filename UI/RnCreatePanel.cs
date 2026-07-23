@@ -5,6 +5,7 @@ internal sealed class RnCreatePanel : RnCard
     private const int MaximumContentWidth = 760;
     private const int CollapseBelowWidth = 660;
     private const int ExpandAboveWidth = 700;
+    private const int ActionRowHeight = 52;
     private readonly TableLayoutPanel _content;
     private readonly TableLayoutPanel _actions;
     private bool _compactActions;
@@ -14,7 +15,7 @@ internal sealed class RnCreatePanel : RnCard
         Dock = DockStyle.Top;
         AutoSize = true;
         AutoSizeMode = AutoSizeMode.GrowAndShrink;
-        Padding = new Padding(LayoutTokens.CardInset);
+        Padding = new Padding(LayoutTokens.CardInset, 8, LayoutTokens.CardInset, 8);
         BorderColor = Color.FromArgb(72, RnTheme.Accent);
 
         var center = new TableLayoutPanel
@@ -52,7 +53,8 @@ internal sealed class RnCreatePanel : RnCard
             ForeColor = RnTheme.Accent,
             Font = new Font("Segoe UI Semibold", 9),
             AutoSize = true,
-            Anchor = AnchorStyles.Left
+            Anchor = AnchorStyles.Left,
+            Margin = new Padding(3, 1, 3, 2)
         }, 0, 0);
 
         _actions = new TableLayoutPanel
@@ -69,10 +71,10 @@ internal sealed class RnCreatePanel : RnCard
 
         var actions = new[]
         {
-            new RnActionTile("＋  New Environment", newEnv) { Dock = DockStyle.Fill, Margin = new Padding(4) },
-            new RnActionTile("▣  Capture Current Setup", capture) { Dock = DockStyle.Fill, Margin = new Padding(4) },
-            new RnActionTile("▤  Identify Displays", identify) { Dock = DockStyle.Fill, Margin = new Padding(4) },
-            new RnActionTile("⚙  Settings", settings) { Dock = DockStyle.Fill, Margin = new Padding(4) }
+            new RnActionTile("＋  New Environment", newEnv) { Dock = DockStyle.Fill, Margin = new Padding(4, 2, 4, 2) },
+            new RnActionTile("▣  Capture Current Setup", capture) { Dock = DockStyle.Fill, Margin = new Padding(4, 2, 4, 2) },
+            new RnActionTile("▤  Identify Displays", identify) { Dock = DockStyle.Fill, Margin = new Padding(4, 2, 4, 2) },
+            new RnActionTile("⚙  Settings", settings) { Dock = DockStyle.Fill, Margin = new Padding(4, 2, 4, 2) }
         };
         for (var index = 0; index < actions.Length; index++)
             _actions.Controls.Add(actions[index], index, 0);
@@ -137,6 +139,6 @@ internal sealed class RnCreatePanel : RnCard
         for (var column = 0; column < _actions.ColumnCount; column++)
             _actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / _actions.ColumnCount));
         for (var row = 0; row < _actions.RowCount; row++)
-            _actions.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            _actions.RowStyles.Add(new RowStyle(SizeType.Absolute, ActionRowHeight));
     }
 }
