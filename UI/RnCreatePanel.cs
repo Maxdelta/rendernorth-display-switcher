@@ -5,9 +5,8 @@ internal sealed class RnCreatePanel : RnCard
     private const int MaximumContentWidth = 760;
     private const int CollapseBelowWidth = 660;
     private const int ExpandAboveWidth = 700;
-    private const int ActionRowHeight = 52;
     private readonly TableLayoutPanel _content;
-    private readonly TableLayoutPanel _actions;
+    private readonly FlowLayoutPanel _actions;
     private bool _compactActions;
 
     public RnCreatePanel(EventHandler newEnv, EventHandler capture, EventHandler identify, EventHandler settings)
@@ -28,9 +27,9 @@ internal sealed class RnCreatePanel : RnCard
             BackColor = Color.Transparent,
             Margin = Padding.Empty
         };
-        center.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
+        center.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 0));
         center.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-        center.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
+        center.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         center.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
         _content = new TableLayoutPanel
@@ -41,7 +40,7 @@ internal sealed class RnCreatePanel : RnCard
             RowCount = 2,
             BackColor = Color.Transparent,
             Margin = Padding.Empty,
-            Anchor = AnchorStyles.None
+            Anchor = AnchorStyles.Left
         };
         _content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         _content.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -57,17 +56,17 @@ internal sealed class RnCreatePanel : RnCard
             Margin = new Padding(3, 1, 3, 2)
         }, 0, 0);
 
-        _actions = new TableLayoutPanel
+        _actions = new FlowLayoutPanel
         {
-            Dock = DockStyle.Fill,
             AutoSize = true,
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
-            ColumnCount = 4,
-            RowCount = 1,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = false,
             BackColor = Color.Transparent,
-            Margin = Padding.Empty
+            Margin = Padding.Empty,
+            Padding = Padding.Empty,
+            Anchor = AnchorStyles.Left
         };
-        ConfigureActionGrid(compact: false);
 
         var actions = new[]
         {
@@ -76,8 +75,14 @@ internal sealed class RnCreatePanel : RnCard
             new RnActionTile("▤  Identify Displays", identify) { Dock = DockStyle.Fill, Margin = new Padding(4, 2, 4, 2) },
             new RnActionTile("⚙  Settings", settings) { Dock = DockStyle.Fill, Margin = new Padding(4, 2, 4, 2) }
         };
+        var preferredWidths = new[] { 170, 210, 170, 130 };
         for (var index = 0; index < actions.Length; index++)
-            _actions.Controls.Add(actions[index], index, 0);
+        {
+            actions[index].Dock = DockStyle.None;
+            actions[index].Size = new Size(preferredWidths[index], actions[index].Height);
+            actions[index].MinimumSize = actions[index].Size;
+            _actions.Controls.Add(actions[index]);
+        }
 
         _content.Controls.Add(_actions, 0, 1);
         center.Controls.Add(_content, 1, 0);
@@ -85,7 +90,7 @@ internal sealed class RnCreatePanel : RnCard
     }
 
     internal Control ContentHost => _content;
-    internal int ActionColumnCount => _actions.ColumnCount;
+    internal int ActionColumnCount => _compactActions ? 2 : 4;
 
     internal void ApplyAvailableWidth(int availableWidth)
     {
@@ -110,35 +115,17 @@ internal sealed class RnCreatePanel : RnCard
             _content.MinimumSize = new Size(contentWidth, 0);
             _content.MaximumSize = new Size(contentWidth, 0);
         }
-        if (compact != _compactActions)
-            ConfigureActionGrid(compact);
+        if (compact != _compactActions || widthChanged)
+            ConfigureActionFlow(compact, contentWidth);
         _actions.ResumeLayout(false);
         _content.ResumeLayout(false);
         ResumeLayout(true);
     }
 
-    private void ConfigureActionGrid(bool compact)
+    private void ConfigureActionFlow(bool compact, int availableWidth)
     {
         _compactActions = compact;
-        _actions.ColumnStyles.Clear();
-        _actions.RowStyles.Clear();
-        if (compact)
-        {
-            _actions.RowCount = 2;
-            for (var index = 0; index < _actions.Controls.Count; index++)
-                _actions.SetCellPosition(_actions.Controls[index], new TableLayoutPanelCellPosition(index % 2, index / 2));
-            _actions.ColumnCount = 2;
-        }
-        else
-        {
-            _actions.ColumnCount = 4;
-            _actions.RowCount = 1;
-            for (var index = 0; index < _actions.Controls.Count; index++)
-                _actions.SetCellPosition(_actions.Controls[index], new TableLayoutPanelCellPosition(index, 0));
-        }
-        for (var column = 0; column < _actions.ColumnCount; column++)
-            _actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / _actions.ColumnCount));
-        for (var row = 0; row < _actions.RowCount; row++)
-            _actions.RowStyles.Add(new RowStyle(SizeType.Absolute, ActionRowHeight));
+        _actions.WrapContents = compact;
+        _actions.MaximumSize = compact ? new Size(Math.Min(availableWidth, 396), 0) : Size.Empty;
     }
 }

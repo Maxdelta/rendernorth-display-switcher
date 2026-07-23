@@ -6,12 +6,13 @@ internal sealed class RnActionTile : RnButton
 {
     private const int CompactHeight = 48;
 
-    public RnActionTile(string text, EventHandler action) : base(RnTheme.Control)
+    public RnActionTile(string text, EventHandler action, int preferredWidth = 170) : base(RnTheme.Control)
     {
         Text = text;
         AccentColor = RnTheme.Accent;
         AutoSize = false;
-        MinimumSize = new Size(0, CompactHeight);
+        Size = new Size(preferredWidth, CompactHeight);
+        MinimumSize = Size;
         Font = new Font("Segoe UI Semibold", 8.5f);
         Click += action;
     }
