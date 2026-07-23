@@ -51,7 +51,7 @@ internal class RnButton : Button
     protected override void OnMouseLeave(EventArgs e) { base.OnMouseLeave(e); BackColor = _baseColor; }
     protected override void OnMouseDown(MouseEventArgs e) { base.OnMouseDown(e); BackColor = ControlPaint.Dark(_baseColor, .08f); }
     protected override void OnMouseUp(MouseEventArgs e) { base.OnMouseUp(e); BackColor = ClientRectangle.Contains(PointToClient(Cursor.Position)) ? ControlPaint.Light(_baseColor, .12f) : _baseColor; }
-    protected override void OnPaint(PaintEventArgs e) { e.Graphics.SmoothingMode = SmoothingMode.AntiAlias; using var path = RnCard.RoundedPath(ClientRectangle, 8); using var brush = new SolidBrush(BackColor); e.Graphics.FillPath(brush, path); TextRenderer.DrawText(e.Graphics, Text, Font, ClientRectangle, ForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter); }
+    protected override void OnPaint(PaintEventArgs e) { e.Graphics.SmoothingMode = SmoothingMode.AntiAlias; var safe = new Rectangle(1, 1, Math.Max(1, Width - 3), Math.Max(1, Height - 3)); using var path = RnCard.RoundedPath(safe, 8); using var brush = new SolidBrush(BackColor); e.Graphics.FillPath(brush, path); TextRenderer.DrawText(e.Graphics, Text, Font, safe, ForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding); }
 }
 
 internal sealed class RnDisplayPreview : Control
