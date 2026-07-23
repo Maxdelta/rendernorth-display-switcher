@@ -3,9 +3,10 @@ internal sealed class RnHeader : RnCard
 {
     public RnHeader(string version, EventHandler settings, EventHandler update)
     {
-        Dock = DockStyle.Fill; AutoSize = true; AutoSizeMode = AutoSizeMode.GrowAndShrink; Padding = new Padding(LayoutTokens.HeaderPadding);
-        var grid = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 3, RowCount = 2, BackColor = Color.Transparent };
+        Dock = DockStyle.Fill; AutoSize = true; AutoSizeMode = AutoSizeMode.GrowAndShrink; MinimumSize = new Size(0, 112); Padding = new Padding(LayoutTokens.HeaderPadding, LayoutTokens.HeaderPadding, LayoutTokens.HeaderPadding, LayoutTokens.HeaderPadding + 10);
+        var grid = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 3, RowCount = 2, BackColor = Color.Transparent };
         grid.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 48)); grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); grid.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        grid.RowStyles.Add(new RowStyle(SizeType.AutoSize)); grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         var mark = new RnStarMark { Dock = DockStyle.Fill, Margin = new Padding(0, 4, 8, 0) }; grid.Controls.Add(mark, 0, 0); grid.SetRowSpan(mark, 2);
         grid.Controls.Add(new Label { Text = "RENDERNORTH", ForeColor = Color.FromArgb(38,198,190), Font = new Font("Segoe UI Semibold", 9), AutoSize = true }, 1, 0);
         grid.Controls.Add(new Label { Text = "Environments", ForeColor = Color.White, Font = new Font("Segoe UI Semibold", 25), AutoSize = true }, 1, 1);
