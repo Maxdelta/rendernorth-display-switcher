@@ -36,7 +36,7 @@ internal sealed class RnHeroCard : RnCard
         };
         iconContainer.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         iconContainer.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        iconContainer.Controls.Add(new RnIconBadge(Color.FromArgb(38, 198, 190), "✦")
+        iconContainer.Controls.Add(new RnIconBadge(RnTheme.Accent, "✦")
         {
             AutoSize = true,
             Anchor = AnchorStyles.None,
@@ -62,7 +62,7 @@ internal sealed class RnHeroCard : RnCard
         content.Controls.Add(new Label
         {
             Text = "✦  ACTIVE ENVIRONMENT",
-            ForeColor = Color.FromArgb(38, 198, 190),
+            ForeColor = RnTheme.Accent,
             AutoSize = true,
             Margin = new Padding(0, 0, 0, 6),
             Anchor = AnchorStyles.Left
@@ -71,7 +71,7 @@ internal sealed class RnHeroCard : RnCard
         content.Controls.Add(new RnWrappingLabel
         {
             Text = name,
-            ForeColor = Color.White,
+            ForeColor = RnTheme.PrimaryText,
             Font = new Font("Segoe UI Semibold", 22),
             AutoSize = true,
             Dock = DockStyle.Fill,
@@ -81,7 +81,7 @@ internal sealed class RnHeroCard : RnCard
         content.Controls.Add(new RnWrappingLabel
         {
             Text = details,
-            ForeColor = Color.FromArgb(174, 187, 194),
+            ForeColor = RnTheme.SecondaryText,
             AutoSize = true,
             Dock = DockStyle.Fill,
             Margin = new Padding(0, 0, 0, 10)
@@ -90,7 +90,7 @@ internal sealed class RnHeroCard : RnCard
         content.Controls.Add(new Label
         {
             Text = "●  Ready",
-            ForeColor = Color.LightGreen,
+            ForeColor = RnTheme.Success,
             AutoSize = true,
             Margin = Padding.Empty,
             Anchor = AnchorStyles.Left

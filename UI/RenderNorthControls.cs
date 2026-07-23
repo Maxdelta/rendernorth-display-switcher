@@ -2,16 +2,38 @@ using System.Drawing.Drawing2D;
 
 namespace RenderNorth.DisplaySwitcher.UI;
 
+internal static class RnTheme
+{
+    public static readonly Color Background = Color.FromArgb(15, 20, 26);
+    public static readonly Color Card = Color.FromArgb(21, 28, 36);
+    public static readonly Color Control = Color.FromArgb(27, 37, 48);
+    public static readonly Color Border = Color.FromArgb(36, 49, 61);
+    public static readonly Color PrimaryText = Color.FromArgb(230, 237, 243);
+    public static readonly Color SecondaryText = Color.FromArgb(155, 167, 180);
+    public static readonly Color Accent = Color.FromArgb(0, 212, 196);
+    public static readonly Color Success = Color.FromArgb(52, 199, 89);
+
+    public static Color OpaqueAncestorBackColor(Control control)
+    {
+        for (var parent = control.Parent; parent is not null; parent = parent.Parent)
+            if (parent.BackColor.A == byte.MaxValue)
+                return parent.BackColor;
+        return Background;
+    }
+}
+
 internal class RnCard : Panel
 {
     public int Radius { get; set; } = 12;
-    public Color BorderColor { get; set; } = Color.FromArgb(58, 70, 77);
+    public Color BorderColor { get; set; } = RnTheme.Border;
     public bool Hovered { get; private set; }
 
     public RnCard()
     {
         DoubleBuffered = true;
-        SetStyle(ControlStyles.ResizeRedraw | ControlStyles.UserPaint | ControlStyles.SupportsTransparentBackColor, true);
+        SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
+        BackColor = RnTheme.Card;
+        ForeColor = RnTheme.PrimaryText;
         MouseEnter += (_, _) => { Hovered = true; Invalidate(); };
         MouseLeave += (_, _) => { Hovered = false; Invalidate(); };
         Padding = new Padding(8);
@@ -26,12 +48,20 @@ internal class RnCard : Panel
 
     protected override void OnPaintBackground(PaintEventArgs e)
     {
+        e.Graphics.SetClip(ClientRectangle);
         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-        var safe = new Rectangle(1, 1, Math.Max(1, ClientSize.Width - 3), Math.Max(1, ClientSize.Height - 3));
-        using var path = RoundedPath(safe, Math.Min(Radius, Math.Max(2, Math.Min(Width, Height) / 4)));
-        using var brush = new SolidBrush(BackColor);
-        using var pen = new Pen(Hovered ? Color.FromArgb(90, BorderColor) : BorderColor, 1);
-        e.Graphics.FillPath(brush, path); e.Graphics.DrawPath(pen, path);
+        e.Graphics.Clear(RnTheme.OpaqueAncestorBackColor(this));
+        var shadowBounds = new Rectangle(2, 3, Math.Max(1, ClientSize.Width - 5), Math.Max(1, ClientSize.Height - 6));
+        var surfaceBounds = new Rectangle(1, 1, Math.Max(1, ClientSize.Width - 3), Math.Max(1, ClientSize.Height - 4));
+        var radius = Math.Min(Radius, Math.Max(2, Math.Min(ClientSize.Width, ClientSize.Height) / 4));
+        using var shadowPath = RoundedPath(shadowBounds, radius);
+        using var surfacePath = RoundedPath(surfaceBounds, radius);
+        using var shadow = new SolidBrush(Color.FromArgb(88, 8, 13, 18));
+        using var surface = new SolidBrush(BackColor);
+        using var border = new Pen(Hovered ? Color.FromArgb(56, 73, 88) : BorderColor);
+        e.Graphics.FillPath(shadow, shadowPath);
+        e.Graphics.FillPath(surface, surfacePath);
+        e.Graphics.DrawPath(border, surfacePath);
     }
 
     protected override void OnPaint(PaintEventArgs e) { base.OnPaint(e); }
@@ -45,13 +75,41 @@ internal class RnCard : Panel
 
 internal class RnButton : Button
 {
-    private Color _baseColor;
-    public RnButton(Color color) { _baseColor = color; BackColor = color; FlatStyle = FlatStyle.Flat; FlatAppearance.BorderSize = 0; ForeColor = Color.White; Cursor = Cursors.Hand; DoubleBuffered = true; SetStyle(ControlStyles.UserPaint, true); }
-    protected override void OnMouseEnter(EventArgs e) { base.OnMouseEnter(e); BackColor = ControlPaint.Light(_baseColor, .12f); }
+    private readonly bool _primary;
+    private readonly Color _baseColor;
+    public RnButton(Color color)
+    {
+        _primary = Math.Max(color.R, Math.Max(color.G, color.B)) - Math.Min(color.R, Math.Min(color.G, color.B)) > 32;
+        _baseColor = _primary ? RnTheme.Accent : RnTheme.Control;
+        BackColor = _baseColor;
+        FlatStyle = FlatStyle.Flat;
+        FlatAppearance.BorderSize = 0;
+        FlatAppearance.MouseOverBackColor = _baseColor;
+        FlatAppearance.MouseDownBackColor = _baseColor;
+        ForeColor = RnTheme.PrimaryText;
+        Cursor = Cursors.Hand;
+        DoubleBuffered = true;
+        UseVisualStyleBackColor = false;
+        SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
+    }
+    protected override void OnMouseEnter(EventArgs e) { base.OnMouseEnter(e); BackColor = _primary ? Color.FromArgb(20, 225, 209) : Color.FromArgb(34, 47, 60); }
     protected override void OnMouseLeave(EventArgs e) { base.OnMouseLeave(e); BackColor = _baseColor; }
-    protected override void OnMouseDown(MouseEventArgs e) { base.OnMouseDown(e); BackColor = ControlPaint.Dark(_baseColor, .08f); }
-    protected override void OnMouseUp(MouseEventArgs e) { base.OnMouseUp(e); BackColor = ClientRectangle.Contains(PointToClient(Cursor.Position)) ? ControlPaint.Light(_baseColor, .12f) : _baseColor; }
-    protected override void OnPaint(PaintEventArgs e) { e.Graphics.SmoothingMode = SmoothingMode.AntiAlias; var safe = new Rectangle(1, 1, Math.Max(1, Width - 3), Math.Max(1, Height - 3)); using var path = RnCard.RoundedPath(safe, 8); using var brush = new SolidBrush(BackColor); e.Graphics.FillPath(brush, path); TextRenderer.DrawText(e.Graphics, Text, Font, safe, ForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding); }
+    protected override void OnMouseDown(MouseEventArgs e) { base.OnMouseDown(e); BackColor = _primary ? Color.FromArgb(0, 184, 171) : Color.FromArgb(22, 31, 40); }
+    protected override void OnMouseUp(MouseEventArgs e) { base.OnMouseUp(e); BackColor = ClientRectangle.Contains(PointToClient(Cursor.Position)) ? (_primary ? Color.FromArgb(20, 225, 209) : Color.FromArgb(34, 47, 60)) : _baseColor; }
+    protected override void OnPaintBackground(PaintEventArgs e) { }
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        e.Graphics.SetClip(ClientRectangle);
+        e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+        e.Graphics.Clear(RnTheme.OpaqueAncestorBackColor(this));
+        var bounds = new Rectangle(1, 1, Math.Max(1, ClientSize.Width - 3), Math.Max(1, ClientSize.Height - 3));
+        using var path = RnCard.RoundedPath(bounds, 8);
+        using var fill = new SolidBrush(BackColor);
+        using var border = new Pen(_primary ? Color.FromArgb(50, 255, 255, 255) : RnTheme.Border);
+        e.Graphics.FillPath(fill, path);
+        e.Graphics.DrawPath(border, path);
+        TextRenderer.DrawText(e.Graphics, Text, Font, bounds, ForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
+    }
 }
 
 internal sealed class RnDisplayPreview : Control

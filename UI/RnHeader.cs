@@ -55,7 +55,7 @@ internal sealed class RnHeader : RnCard
         brand.Controls.Add(new Label
         {
             Text = "RENDERNORTH",
-            ForeColor = Color.FromArgb(38, 198, 190),
+            ForeColor = RnTheme.Accent,
             Font = new Font("Segoe UI Semibold", 9),
             AutoSize = true,
             Margin = Padding.Empty,
@@ -65,7 +65,7 @@ internal sealed class RnHeader : RnCard
         brand.Controls.Add(new Label
         {
             Text = "Environments",
-            ForeColor = Color.White,
+            ForeColor = RnTheme.PrimaryText,
             Font = new Font("Segoe UI Semibold", 22),
             AutoSize = true,
             Margin = new Padding(0, 0, 0, 12),
@@ -88,7 +88,7 @@ internal sealed class RnHeader : RnCard
         metadata.Controls.Add(new Label
         {
             Text = "Your PC should adapt to what you're doing.",
-            ForeColor = Color.FromArgb(174, 187, 194),
+            ForeColor = RnTheme.SecondaryText,
             AutoSize = true,
             Margin = Padding.Empty,
             Anchor = AnchorStyles.None
@@ -96,7 +96,7 @@ internal sealed class RnHeader : RnCard
         metadata.Controls.Add(new Label
         {
             Text = " • v" + version,
-            ForeColor = Color.FromArgb(38, 198, 190),
+            ForeColor = RnTheme.Accent,
             AutoSize = true,
             Margin = Padding.Empty,
             Anchor = AnchorStyles.None
@@ -170,7 +170,7 @@ internal sealed class RnStarMark : Control
         var center = new PointF(ClientRectangle.Left + ClientRectangle.Width / 2f, ClientRectangle.Top + ClientRectangle.Height / 2f);
         var inset = Math.Max(2f, DeviceDpi / 24f);
         var orbitRadius = Math.Min(ClientRectangle.Width, ClientRectangle.Height) / 4f;
-        using var pen = new Pen(Color.FromArgb(38, 198, 190), Math.Max(1f, DeviceDpi / 48f));
+        using var pen = new Pen(RnTheme.Accent, Math.Max(1f, DeviceDpi / 48f));
         e.Graphics.DrawLine(pen, center.X, ClientRectangle.Top + inset, center.X, ClientRectangle.Bottom - inset);
         e.Graphics.DrawLine(pen, ClientRectangle.Left + inset, center.Y, ClientRectangle.Right - inset, center.Y);
         e.Graphics.DrawEllipse(
