@@ -1,9 +1,10 @@
 namespace RenderNorth.DisplaySwitcher.UI;
 internal sealed class RnHeader : RnCard
 {
+    private const int PreferredHeaderHeight = 124;
     public RnHeader(string version, EventHandler settings, EventHandler update)
     {
-        Dock = DockStyle.Fill; AutoSize = true; AutoSizeMode = AutoSizeMode.GrowAndShrink; MinimumSize = new Size(0, 112); Padding = new Padding(LayoutTokens.HeaderPadding, LayoutTokens.HeaderPadding, LayoutTokens.HeaderPadding, LayoutTokens.HeaderPadding + 10);
+        Dock = DockStyle.Fill; AutoSize = true; AutoSizeMode = AutoSizeMode.GrowOnly; MinimumSize = new Size(0, PreferredHeaderHeight); Padding = new Padding(LayoutTokens.HeaderPadding, LayoutTokens.HeaderPadding, LayoutTokens.HeaderPadding, LayoutTokens.HeaderPadding + 16);
         var grid = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 3, RowCount = 2, BackColor = Color.Transparent };
         grid.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 48)); grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); grid.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         grid.RowStyles.Add(new RowStyle(SizeType.AutoSize)); grid.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -13,6 +14,8 @@ internal sealed class RnHeader : RnCard
         var metadata = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, WrapContents = true, BackColor = Color.Transparent, Margin = new Padding(12, 22, 8, 0) }; metadata.Controls.Add(new Label { Text = "Your PC should adapt to what you're doing.", ForeColor = Color.FromArgb(174,187,194), AutoSize = true }); metadata.Controls.Add(new Label { Text = " • v" + version, ForeColor = Color.FromArgb(38,198,190), AutoSize = true }); grid.Controls.Add(metadata, 2, 0);
         var actions = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, WrapContents = false, BackColor = Color.Transparent, Margin = new Padding(4, 4, 0, 0) }; var updateButton = new RnButton(Color.FromArgb(44,54,60)) { Text = "Check for Updates", AutoSize = true, MinimumSize = new Size(126, LayoutTokens.ButtonHeight) }; updateButton.Click += update; var settingsButton = new RnButton(Color.FromArgb(44,54,60)) { Text = "Settings", AutoSize = true, MinimumSize = new Size(92, LayoutTokens.ButtonHeight) }; settingsButton.Click += settings; actions.Controls.AddRange([updateButton, settingsButton]); grid.Controls.Add(actions, 2, 1); Controls.Add(grid);
     }
+
+    public override Size GetPreferredSize(Size proposedSize) => new Size(proposedSize.Width, PreferredHeaderHeight);
 }
 internal sealed class RnStarMark : Control
 {
