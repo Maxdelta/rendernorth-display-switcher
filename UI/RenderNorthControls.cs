@@ -78,6 +78,14 @@ internal class RnButton : Button
 {
     private readonly bool _primary;
     private readonly Color _baseColor;
+    private Color _accentColor = Color.Empty;
+
+    public Color AccentColor
+    {
+        get => _accentColor;
+        set { _accentColor = value; Invalidate(); }
+    }
+
     public RnButton(Color color)
     {
         _primary = Math.Max(color.R, Math.Max(color.G, color.B)) - Math.Min(color.R, Math.Min(color.G, color.B)) > 32;
@@ -107,10 +115,28 @@ internal class RnButton : Button
         var bounds = new Rectangle(1, 1, Math.Max(1, ClientSize.Width - 3), Math.Max(1, ClientSize.Height - 3));
         using var path = RnCard.RoundedPath(bounds, 8);
         using var fill = new SolidBrush(BackColor);
-        using var border = new Pen(_primary ? Color.FromArgb(76, _baseColor) : RnTheme.Border);
+        var outline = !_primary && !_accentColor.IsEmpty ? Color.FromArgb(112, _accentColor) : (_primary ? Color.FromArgb(76, _baseColor) : RnTheme.Border);
+        using var border = new Pen(outline);
         e.Graphics.FillPath(fill, path);
         e.Graphics.DrawPath(border, path);
-        TextRenderer.DrawText(e.Graphics, Text, Font, bounds, ForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
+
+        var parts = Text.Split(["  "], 2, StringSplitOptions.None);
+        if (!_primary && !_accentColor.IsEmpty && parts.Length == 2)
+        {
+            var scale = DeviceDpi / 96f;
+            var iconWidth = Math.Max(24, (int)Math.Round(30 * scale));
+            var inset = Math.Max(4, (int)Math.Round(6 * scale));
+            var iconBounds = new Rectangle(bounds.Left + inset, bounds.Top, iconWidth, bounds.Height);
+            var labelBounds = new Rectangle(iconBounds.Right, bounds.Top, Math.Max(1, bounds.Right - iconBounds.Right - inset), bounds.Height);
+            using var iconWash = new SolidBrush(Color.FromArgb(28, _accentColor));
+            e.Graphics.FillEllipse(iconWash, Rectangle.Inflate(iconBounds, -2, -5));
+            TextRenderer.DrawText(e.Graphics, parts[0], Font, iconBounds, _accentColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
+            TextRenderer.DrawText(e.Graphics, parts[1], Font, labelBounds, ForeColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
+        }
+        else
+        {
+            TextRenderer.DrawText(e.Graphics, Text, Font, bounds, ForeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
+        }
     }
 }
 

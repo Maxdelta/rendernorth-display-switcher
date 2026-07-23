@@ -6,14 +6,14 @@ namespace RenderNorth.DisplaySwitcher.UI;
 
 internal sealed class MainForm : Form
 {
-    private static readonly Color Background = Color.FromArgb(24, 29, 33);
-    private static readonly Color Card = Color.FromArgb(35, 42, 47);
-    private static readonly Color Accent = Color.FromArgb(38, 198, 190);
+    private static readonly Color Background = RnTheme.Background;
+    private static readonly Color Card = RnTheme.Card;
+    private static readonly Color Accent = RnTheme.Accent;
     private static readonly Color Gaming = Color.FromArgb(155, 109, 255);
     private static readonly Color Streaming = Color.FromArgb(240, 93, 103);
     private static readonly Color Development = Color.FromArgb(76, 154, 255);
     private static readonly Color Presentation = Color.FromArgb(76, 203, 138);
-    private static readonly Color Muted = Color.FromArgb(174, 187, 194);
+    private static readonly Color Muted = RnTheme.SecondaryText;
     private readonly EnvironmentManager _manager;
     private readonly UpdateService _updates;
     private readonly AppLogger _log;
@@ -36,7 +36,7 @@ internal sealed class MainForm : Form
         _manager = manager; _updates = updates; _log = log; _captureDisplays = captureDisplays;
         _identifyDisplays = identifyDisplays; _openDisplaySettings = openDisplaySettings; _shortcuts = shortcuts;
         Text = "RenderNorth Environments"; ClientSize = new Size(900, 760); MinimumSize = new Size(620, 520);
-        StartPosition = FormStartPosition.CenterScreen; BackColor = Background; ForeColor = Color.White;
+        StartPosition = FormStartPosition.CenterScreen; BackColor = Background; ForeColor = RnTheme.PrimaryText;
         Font = new Font("Segoe UI", 9); AutoScaleMode = AutoScaleMode.Dpi;
 
         var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 4, Padding = new Padding(LayoutTokens.WindowInset), BackColor = Background, AutoSize = false };
@@ -248,7 +248,7 @@ internal sealed class MainForm : Form
     private void ShowError(string message, Exception exception) { _log.Error(message, exception); MessageBox.Show(this, $"{message}\n\n{exception.Message}", Text, MessageBoxButtons.OK, MessageBoxIcon.Error); }
     private void ShowWarning(string message) => MessageBox.Show(this, message, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
     private static Panel Panel(Color color) => new RnCard { Dock = DockStyle.Fill, BackColor = color };
-    private static Label LabelText(string text, float size, bool bold = false) => new() { Text = text, ForeColor = Color.White, Font = new Font("Segoe UI", size, bold ? FontStyle.Bold : FontStyle.Regular), AutoEllipsis = true };
+    private static Label LabelText(string text, float size, bool bold = false) => new() { Text = text, ForeColor = RnTheme.PrimaryText, Font = new Font("Segoe UI", size, bold ? FontStyle.Bold : FontStyle.Regular), AutoEllipsis = true };
     private static Button Button(string text, Color color, EventHandler action) { var button = new RnButton(color) { Text = text }; button.Click += action; return button; }
     private static string IconLabel(string icon) => icon.ToLowerInvariant() switch { "gamepad" => "🎮", "script" => "🎥", "code" => "💻", "work" => "🧰", "creative" => "🎨", "presentation" => "📺", "travel" => "✈", "camera" => "📷", "microphone" => "🎙", "monitor" => "🖥", _ => "◆" };
     private static Color CategoryColor(string? category) => category?.ToLowerInvariant() switch { "gaming" => Gaming, "streaming" => Streaming, "development" => Development, "presentation" => Presentation, _ => Accent };

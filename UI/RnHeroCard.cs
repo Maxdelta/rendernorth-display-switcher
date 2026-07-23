@@ -4,10 +4,12 @@ internal sealed class RnHeroCard : RnCard
 {
     public RnHeroCard(string name, string details, bool canActivate, Func<Task>? activate, Action capture)
     {
-        var heroAccent = canActivate ? RnTheme.Purple : RnTheme.Accent;
+        var heroAccent = RnTheme.Purple;
         Dock = DockStyle.Fill;
         AutoSize = true;
         AutoSizeMode = AutoSizeMode.GrowAndShrink;
+        BackColor = Color.FromArgb(23, 28, 42);
+        BorderColor = Color.FromArgb(112, RnTheme.Purple);
         Padding = new Padding(LayoutTokens.HeroInset);
 
         var hero = new TableLayoutPanel
