@@ -14,6 +14,6 @@ internal sealed class RnHeroCard : RnCard
 internal sealed class RnIconBadge : Control
 {
     private readonly Color _accent; private readonly string _symbol;
-    public RnIconBadge(Color accent, string symbol) { _accent = accent; _symbol = symbol; Size = new Size(88, 88); BackColor = Color.Transparent; DoubleBuffered = true; }
+    public RnIconBadge(Color accent, string symbol) { _accent = accent; _symbol = symbol; SetStyle(ControlStyles.SupportsTransparentBackColor | ControlStyles.UserPaint | ControlStyles.ResizeRedraw, true); Size = new Size(88, 88); BackColor = Color.Transparent; DoubleBuffered = true; }
     protected override void OnPaint(PaintEventArgs e) { e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; using var b = new SolidBrush(Color.FromArgb(45, _accent.R, _accent.G, _accent.B)); e.Graphics.FillEllipse(b, 4, 4, Width - 8, Height - 8); using var p = new Pen(_accent, 2); e.Graphics.DrawEllipse(p, 4, 4, Width - 8, Height - 8); TextRenderer.DrawText(e.Graphics, _symbol, new Font("Segoe UI", 30), ClientRectangle, Color.White, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter); }
 }

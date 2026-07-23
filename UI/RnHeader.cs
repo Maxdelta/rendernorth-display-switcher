@@ -19,6 +19,6 @@ internal sealed class RnHeader : RnCard
 }
 internal sealed class RnStarMark : Control
 {
-    public RnStarMark() { DoubleBuffered = true; BackColor = Color.Transparent; MinimumSize = new Size(42, 42); }
+    public RnStarMark() { SetStyle(ControlStyles.SupportsTransparentBackColor | ControlStyles.UserPaint | ControlStyles.ResizeRedraw, true); DoubleBuffered = true; BackColor = Color.Transparent; MinimumSize = new Size(42, 42); }
     protected override void OnPaint(PaintEventArgs e) { e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; var c = new PointF(Width / 2f, Height / 2f); using var pen = new Pen(Color.FromArgb(38,198,190), 2); e.Graphics.DrawLine(pen, c.X, 4, c.X, Height - 4); e.Graphics.DrawLine(pen, 4, c.Y, Width - 4, c.Y); e.Graphics.DrawEllipse(pen, c.X - 10, c.Y - 10, 20, 20); }
 }
