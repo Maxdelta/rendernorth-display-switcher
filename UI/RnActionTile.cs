@@ -31,14 +31,14 @@ internal sealed class RnActionTile : RnButton
         e.Graphics.DrawPath(border, path);
 
         var parts = Text.Split(["  "], 2, StringSplitOptions.None);
-        var inset = Math.Max(6, (int)Math.Round(8 * scale));
-        var iconSide = Math.Max(28, (int)Math.Round(30 * scale));
+        var inset = Math.Max(5, (int)Math.Round(6 * scale));
+        var iconSide = Math.Max(26, (int)Math.Round(28 * scale));
         var iconBounds = new Rectangle(
             bounds.Left + inset,
             bounds.Top + Math.Max(0, (bounds.Height - iconSide) / 2),
             iconSide,
             iconSide);
-        var labelGap = Math.Max(5, (int)Math.Round(6 * scale));
+        var labelGap = Math.Max(3, (int)Math.Round(4 * scale));
         var labelBounds = new Rectangle(
             iconBounds.Right + labelGap,
             bounds.Top,
