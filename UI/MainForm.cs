@@ -22,6 +22,9 @@ internal sealed class MainForm : Form
     private readonly Action _openDisplaySettings;
     private readonly ShortcutService _shortcuts;
     private readonly FlowLayoutPanel _environmentList = new() { FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = true };
+    private readonly Panel _dashboardScroll;
+    private readonly TableLayoutPanel _dashboardContent;
+    private readonly RnCreatePanel _quickActions;
     private readonly Label _currentName = LabelText("Custom Configuration", 18, true);
     private readonly Label _currentDetails = LabelText("No matching environment", 9);
     private readonly Label _lastResult = LabelText("No environment activation has been recorded yet.", 9);
@@ -29,6 +32,7 @@ internal sealed class MainForm : Form
     private readonly Label _updateStatus = LabelText("Not checked", 9);
     private readonly Button _downloadButton;
     private Guid _detectedEnvironmentId;
+    private bool _dashboardLayoutInProgress;
 
     public MainForm(EnvironmentManager manager, UpdateService updates, AppLogger log,
         Func<ModuleDocument> captureDisplays, Func<string> identifyDisplays, Action openDisplaySettings, ShortcutService shortcuts)
@@ -42,12 +46,20 @@ internal sealed class MainForm : Form
         var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 4, Padding = new Padding(LayoutTokens.WindowInset), BackColor = Background, AutoSize = false };
         root.RowStyles.Add(new RowStyle(SizeType.AutoSize)); root.RowStyles.Add(new RowStyle(SizeType.AutoSize)); root.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         root.Controls.Add(Header(), 0, 0); root.Controls.Add(CurrentCard(), 0, 1);
-        var scroll = new Panel { Dock = DockStyle.Fill, AutoScroll = true, BackColor = Background, Padding = new Padding(0, LayoutTokens.SectionGap, 0, LayoutTokens.SectionGap) };
-        var content = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 2, BackColor = Background };
+        _dashboardScroll = new Panel { Dock = DockStyle.Fill, AutoScroll = true, BackColor = Background, Padding = new Padding(0, LayoutTokens.SectionGap, 0, LayoutTokens.SectionGap) };
+        _dashboardContent = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 1, RowCount = 2, BackColor = Background };
         _environmentList.Dock = DockStyle.Top; _environmentList.AutoSize = true; _environmentList.AutoSizeMode = AutoSizeMode.GrowAndShrink; _environmentList.BackColor = Background; _environmentList.Padding = new Padding(0, 4, 0, 4);
-        content.Controls.Add(_environmentList, 0, 0); content.Controls.Add(Actions(), 0, 1); scroll.Controls.Add(content); root.Controls.Add(scroll, 0, 2);
+        _quickActions = (RnCreatePanel)Actions();
+        _dashboardContent.Controls.Add(_environmentList, 0, 0); _dashboardContent.Controls.Add(_quickActions, 0, 1); _dashboardScroll.Controls.Add(_dashboardContent); root.Controls.Add(_dashboardScroll, 0, 2);
         _downloadButton = Button("Download and Install", Accent, async (_, _) => await DownloadAndInstallAsync()); _downloadButton.Visible = false;
         root.Controls.Add(StatusCard(), 0, 3); Controls.Add(root);
+        _dashboardScroll.HorizontalScroll.Enabled = false;
+        _dashboardScroll.Layout += (_, _) => RelayoutDashboard();
+        _dashboardScroll.ClientSizeChanged += (_, _) => RelayoutDashboard();
+        Resize += (_, _) => RelayoutDashboard();
+        ClientSizeChanged += (_, _) => RelayoutDashboard();
+        DpiChanged += (_, _) => RelayoutDashboard();
+        FontChanged += (_, _) => RelayoutDashboard();
         _updates.StatusChanged += OnUpdateStatusChanged;
         Shown += async (_, _) => { await RefreshAsync(); await _updates.CheckAsync(); };
     }
@@ -110,6 +122,7 @@ internal sealed class MainForm : Form
             _environmentList.Controls.Add(EmptyState());
         }
         _environmentList.ResumeLayout(); _lastResult.Text = "Last activation: " + collection.ActivationStatus.LastResult;
+        RelayoutDashboard();
         _lastSuccessful.Text = "Last successful activation: " + (collection.ActivationStatus.LastSuccessfulAt?.ToLocalTime().ToString("g") ?? "None recorded");
         try
         {
@@ -138,6 +151,43 @@ internal sealed class MainForm : Form
     }
 
     private Control EmptyState() => new RnEmptyState(() => EditNew(true), () => EditNew(false));
+
+    internal Control DashboardScrollHost => _dashboardScroll;
+    internal Control DashboardContent => _dashboardContent;
+    internal RnCreatePanel QuickActionsPanel => _quickActions;
+
+    internal void RelayoutDashboard()
+    {
+        if (_dashboardLayoutInProgress || _dashboardScroll.IsDisposed)
+            return;
+
+        _dashboardLayoutInProgress = true;
+        try
+        {
+            var scrollbarWidth = _dashboardScroll.VerticalScroll.Visible ? SystemInformation.VerticalScrollBarWidth : 0;
+            var availableWidth = Math.Max(1, _dashboardScroll.ClientSize.Width - _dashboardScroll.Padding.Horizontal - scrollbarWidth);
+            var exactWidth = new Size(availableWidth, 0);
+            _dashboardContent.MinimumSize = exactWidth;
+            _dashboardContent.MaximumSize = exactWidth;
+            _environmentList.MinimumSize = exactWidth;
+            _environmentList.MaximumSize = exactWidth;
+
+            foreach (Control child in _environmentList.Controls)
+            {
+                if (child is RnEmptyState emptyState)
+                    emptyState.ApplyAvailableWidth(availableWidth);
+            }
+
+            _quickActions.ApplyAvailableWidth(availableWidth);
+            _dashboardScroll.HorizontalScroll.Visible = false;
+            _dashboardScroll.HorizontalScroll.Enabled = false;
+            _dashboardContent.PerformLayout();
+        }
+        finally
+        {
+            _dashboardLayoutInProgress = false;
+        }
+    }
     /*
     {
         var panel = new RnCard { Width = Math.Max(680, _environmentList.ClientSize.Width - 24), Height = 270, BackColor = Card, Margin = new Padding(0, 0, 0, 9), Padding = new Padding(8) };

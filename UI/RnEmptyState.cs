@@ -2,9 +2,12 @@ namespace RenderNorth.DisplaySwitcher.UI;
 
 internal sealed class RnEmptyState : RnCard
 {
+    private const int MaximumContentWidth = 760;
+    private readonly TableLayoutPanel _content;
+
     public RnEmptyState(Action capture, Action create)
     {
-        Dock = DockStyle.Fill;
+        Dock = DockStyle.Top;
         Anchor = AnchorStyles.Left | AnchorStyles.Right;
         AutoSize = true;
         AutoSizeMode = AutoSizeMode.GrowAndShrink;
@@ -26,7 +29,22 @@ internal sealed class RnEmptyState : RnCard
         host.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         host.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
 
-        var content = new TableLayoutPanel
+        var center = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            ColumnCount = 3,
+            RowCount = 1,
+            BackColor = Color.Transparent,
+            Margin = Padding.Empty
+        };
+        center.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
+        center.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        center.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
+        center.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+        _content = new TableLayoutPanel
         {
             AutoSize = true,
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
@@ -36,9 +54,9 @@ internal sealed class RnEmptyState : RnCard
             Margin = Padding.Empty,
             Anchor = AnchorStyles.None
         };
-        content.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-        for (var row = 0; row < content.RowCount; row++)
-            content.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        _content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        for (var row = 0; row < _content.RowCount; row++)
+            _content.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
         var mark = new RnStarMark
         {
@@ -46,9 +64,9 @@ internal sealed class RnEmptyState : RnCard
             Size = new Size(52, 52),
             Margin = new Padding(3, 0, 3, 2)
         };
-        content.Controls.Add(mark, 0, 0);
+        _content.Controls.Add(mark, 0, 0);
 
-        content.Controls.Add(new Label
+        _content.Controls.Add(new Label
         {
             Text = "Welcome to RenderNorth Environments",
             ForeColor = RnTheme.PrimaryText,
@@ -58,7 +76,7 @@ internal sealed class RnEmptyState : RnCard
             Margin = new Padding(3, 2, 3, 7)
         }, 0, 1);
 
-        content.Controls.Add(new Label
+        _content.Controls.Add(new Label
         {
             Text = "Your PC should adapt to what you're doing.",
             ForeColor = RnTheme.SecondaryText,
@@ -68,7 +86,7 @@ internal sealed class RnEmptyState : RnCard
             Margin = new Padding(3, 0, 3, 2)
         }, 0, 2);
 
-        content.Controls.Add(new Label
+        _content.Controls.Add(new Label
         {
             Text = "Create your first environment by saving your current display setup.",
             ForeColor = RnTheme.SecondaryText,
@@ -108,7 +126,7 @@ internal sealed class RnEmptyState : RnCard
             tile.Click += (_, _) => capture();
             tiles.Controls.Add(tile);
         }
-        content.Controls.Add(tiles, 0, 4);
+        _content.Controls.Add(tiles, 0, 4);
 
         var actions = new FlowLayoutPanel
         {
@@ -138,19 +156,25 @@ internal sealed class RnEmptyState : RnCard
         newEnvironmentButton.Click += (_, _) => create();
 
         actions.Controls.AddRange([captureButton, newEnvironmentButton]);
-        content.Controls.Add(actions, 0, 5);
+        _content.Controls.Add(actions, 0, 5);
 
-        host.Controls.Add(content, 0, 1);
+        center.Controls.Add(_content, 1, 0);
+        host.Controls.Add(center, 0, 1);
         Controls.Add(host);
     }
 
-    public override Size GetPreferredSize(Size proposedSize)
-    {
-        var preferred = base.GetPreferredSize(proposedSize);
-        var availableWidth = Parent?.DisplayRectangle.Width ?? proposedSize.Width;
-        if (availableWidth <= 0)
-            return preferred;
+    internal Control ContentHost => _content;
 
-        return new Size(Math.Max(1, availableWidth - Margin.Horizontal), preferred.Height);
+    internal void ApplyAvailableWidth(int availableWidth)
+    {
+        if (availableWidth <= 0)
+            return;
+
+        var outerWidth = Math.Max(1, availableWidth - Margin.Horizontal);
+        var contentWidth = Math.Min(MaximumContentWidth, Math.Max(1, outerWidth - Padding.Horizontal));
+        MinimumSize = new Size(outerWidth, 0);
+        MaximumSize = new Size(outerWidth, 0);
+        _content.MaximumSize = new Size(contentWidth, 0);
+        PerformLayout();
     }
 }
