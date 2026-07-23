@@ -27,7 +27,6 @@ internal class RnCard : Panel
 {
     public int Radius { get; set; } = 14;
     public Color BorderColor { get; set; } = RnTheme.Border;
-    public bool Hovered { get; private set; }
 
     public RnCard()
     {
@@ -35,8 +34,6 @@ internal class RnCard : Panel
         SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
         BackColor = RnTheme.Card;
         ForeColor = RnTheme.PrimaryText;
-        MouseEnter += (_, _) => { Hovered = true; Invalidate(); };
-        MouseLeave += (_, _) => { Hovered = false; Invalidate(); };
         Padding = new Padding(8);
     }
 
@@ -59,7 +56,7 @@ internal class RnCard : Panel
         using var surfacePath = RoundedPath(surfaceBounds, radius);
         using var shadow = new SolidBrush(Color.FromArgb(88, 8, 13, 18));
         using var surface = new SolidBrush(BackColor);
-        using var border = new Pen(Hovered ? Color.FromArgb(56, 88, 96) : BorderColor);
+        using var border = new Pen(BorderColor);
         e.Graphics.FillPath(shadow, shadowPath);
         e.Graphics.FillPath(surface, surfacePath);
         e.Graphics.DrawPath(border, surfacePath);
@@ -153,7 +150,13 @@ internal class RnButton : Button
 internal sealed class RnDisplayPreview : Control
 {
     public string Category { get; set; } = "Custom";
-    public RnDisplayPreview() { DoubleBuffered = true; Size = new Size(132, 42); BackColor = Color.Transparent; }
+    public RnDisplayPreview()
+    {
+        SetStyle(ControlStyles.SupportsTransparentBackColor | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
+        DoubleBuffered = true;
+        Size = new Size(132, 42);
+        BackColor = Color.Transparent;
+    }
     protected override void OnPaint(PaintEventArgs e)
     {
         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias; var accent = Category.ToLowerInvariant() switch { "gaming" => Color.FromArgb(155,109,255), "streaming" => Color.FromArgb(240,93,103), "development" => Color.FromArgb(76,154,255), "presentation" => Color.FromArgb(76,203,138), _ => Color.FromArgb(38,198,190) };

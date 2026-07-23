@@ -39,6 +39,17 @@ public sealed class DisplayModuleTests
         Assert.False(new DisplayModuleService().Matches(Configuration(10, 20, "DISPLAY\\ONE"), Configuration(10, 99, "DISPLAY\\ONE")));
     }
 
+    [Fact]
+    public void Matches_RejectsSameTargetsAtDifferentDesktopPositions()
+    {
+        var first = Configuration(10, 20, "DISPLAY\\ONE");
+        var second = Configuration(10, 20, "DISPLAY\\ONE");
+        first.Modes.Add(SourceMode(10, 0, 0));
+        second.Modes.Add(SourceMode(10, 1920, 0));
+
+        Assert.False(new DisplayModuleService().Matches(first, second));
+    }
+
     private static DisplayProfile Configuration(uint source, uint target, string path) => new()
     {
         MachineName = Environment.MachineName,
@@ -50,5 +61,22 @@ public sealed class DisplayModuleTests
     {
         SourceInfo = new DisplayConfigPathSourceInfo { AdapterId = new Luid { LowPart = 1 }, Id = source },
         TargetInfo = new DisplayConfigPathTargetInfo { AdapterId = new Luid { LowPart = 1 }, Id = target }
+    };
+
+    private static DisplayConfigModeInfo SourceMode(uint source, int x, int y) => new()
+    {
+        InfoType = DisplayConfigModeInfoType.Source,
+        Id = source,
+        AdapterId = new Luid { LowPart = 1 },
+        Mode = new DisplayConfigModeUnion
+        {
+            SourceMode = new DisplayConfigSourceMode
+            {
+                Width = 1920,
+                Height = 1080,
+                PixelFormat = 4,
+                Position = new PointL { X = x, Y = y }
+            }
+        }
     };
 }

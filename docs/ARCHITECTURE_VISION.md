@@ -116,7 +116,7 @@ Native display structures must not leak into `EnvironmentManager`, `EnvironmentR
 
 ## Repository and Data Safety
 
-Installed data remains under the existing Velopack root `UserData` directory. Portable data remains beside the portable executable. Repository writes must be atomic and validated before replacement.
+Installed data remains outside the Velopack-managed application root under `%LOCALAPPDATA%\RenderNorth\Environments\UserData`. Existing root-level `UserData` is migrated automatically. Portable data remains beside the portable executable. Repository writes must be atomic and validated before replacement.
 
 Valid user data must never be silently discarded. Before migration or schema replacement, the application creates a recoverable backup. Unknown module payloads are round-tripped unchanged. Duplicate environment IDs and case-insensitive duplicate names are rejected.
 
@@ -150,7 +150,7 @@ The v0.4 public name is RenderNorth Environments. To preserve the verified v0.3.
 - executable `RenderNorthDisplaySwitcher.exe`;
 - existing install directory;
 - existing GitHub repository and update feed;
-- existing `UserData` directory;
+- existing `UserData` content, migrated to the durable installed-data directory;
 - legacy launchers, shortcuts, and CLI aliases.
 
 Historical v0.3.x release records remain unchanged. Internal identity changes require a separately designed and installed-artifact-tested migration.

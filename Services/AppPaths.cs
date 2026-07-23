@@ -9,7 +9,11 @@ internal static class AppPaths
     public static bool IsPortable => VelopackLocator.Current.IsPortable || VelopackLocator.Current.RootAppDir is null;
     public static string DataFolder => IsPortable
         ? AppContext.BaseDirectory
-        : Path.Combine(RequireRootAppDir(), "UserData");
+        : Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "RenderNorth",
+            "Environments",
+            "UserData");
     public static string ProfilesFolder => Path.Combine(DataFolder, "profiles");
     public static string LogsFolder => Path.Combine(DataFolder, "logs");
 
@@ -17,9 +21,25 @@ internal static class AppPaths
     {
         if (_initialized) return;
         _initialized = true;
+        if (!IsPortable) MigrateInstalledUserData();
         Directory.CreateDirectory(ProfilesFolder);
         Directory.CreateDirectory(LogsFolder);
         if (!IsPortable) MigrateLegacyProfiles();
+    }
+
+    internal static void MigrateInstalledUserData()
+    {
+        var source = Path.Combine(RequireRootAppDir(), "UserData");
+        if (!Directory.Exists(source)) return;
+
+        foreach (var sourceFile in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
+        {
+            var relativePath = Path.GetRelativePath(source, sourceFile);
+            var destinationFile = Path.Combine(DataFolder, relativePath);
+            if (File.Exists(destinationFile)) continue;
+            Directory.CreateDirectory(Path.GetDirectoryName(destinationFile)!);
+            File.Copy(sourceFile, destinationFile, false);
+        }
     }
 
     internal static void MigrateLegacyProfiles()

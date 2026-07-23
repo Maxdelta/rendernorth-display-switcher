@@ -15,8 +15,8 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <InvariantGlobalization>true</InvariantGlobalization>
     <Authors>RenderNorth</Authors>
-    <Product>RenderNorth Environments</Product>
-    <Description>Modular Windows workspace environments, beginning with native display configuration.</Description>
+    <Product>RenderNorth Environments Private Beta</Product>
+    <Description>RenderNorth Environments Private Beta — modular Windows workspace environments.</Description>
     <Copyright>Copyright © 2026 RenderNorth</Copyright>
   </PropertyGroup>
   <ItemGroup>

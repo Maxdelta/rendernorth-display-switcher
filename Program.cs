@@ -27,6 +27,12 @@ internal static class Program
             var displayService = new DisplayModuleService();
             registry.Register(DisplayModule.Type, () => new DisplayModule(displayService));
             var manager = new EnvironmentManager(repository, registry, log);
+            var shortcuts = ShortcutService.CreateDefault();
+            foreach (var environment in manager.Load().Environments)
+            {
+                try { shortcuts.Recreate(environment); }
+                catch (Exception exception) { log.Error($"Could not restore managed shortcuts for {environment.Name}.", exception); }
+            }
             var command = new CommandLineService(manager, log).ExecuteAsync(args).GetAwaiter().GetResult();
             if (!command.ShowGui) return command.ExitCode;
 
@@ -48,7 +54,7 @@ internal static class Program
             Application.Run(new MainForm(manager, new UpdateService(log), log, CaptureDisplays,
                 () => displayService.DescribeTargets(displayService.Capture()),
                 () => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("ms-settings:display") { UseShellExecute = true }),
-                ShortcutService.CreateDefault()));
+                shortcuts));
             return 0;
         }
         catch (Exception exception)

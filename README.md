@@ -128,7 +128,7 @@ Publishing and release packaging remain intentionally unchanged until the v0.4 i
 
 ## Data and Privacy
 
-Installed data remains under the existing Velopack application root in `UserData`; portable data remains beside the portable executable. Environment configuration can contain the local machine name and Windows monitor device paths.
+Installed data is stored outside the installer-managed application directory under `%LOCALAPPDATA%\RenderNorth\Environments\UserData`; portable data remains beside the portable executable. Existing installed `UserData` is migrated automatically. Environment configuration can contain the local machine name and Windows monitor device paths.
 
 RenderNorth Environments has no telemetry, advertising, account system, or analytics. The installed edition contacts the configured public GitHub Releases repository only for optional update checks and packages.
 

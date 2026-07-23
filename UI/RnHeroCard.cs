@@ -2,6 +2,11 @@ namespace RenderNorth.DisplaySwitcher.UI;
 
 internal sealed class RnHeroCard : RnCard
 {
+    private readonly RnWrappingLabel _nameLabel;
+    private readonly RnWrappingLabel _detailsLabel;
+    private readonly RnButton _primaryButton;
+    private readonly RnButton _manageButton;
+
     public RnHeroCard(string name, string details, bool canActivate, Func<Task>? activate, Action capture, Action manage)
     {
         var heroAccent = RnTheme.Purple;
@@ -71,7 +76,7 @@ internal sealed class RnHeroCard : RnCard
             Anchor = AnchorStyles.Left
         }, 0, 0);
 
-        content.Controls.Add(new RnWrappingLabel
+        _nameLabel = new RnWrappingLabel
         {
             Text = name,
             ForeColor = RnTheme.PrimaryText,
@@ -79,16 +84,18 @@ internal sealed class RnHeroCard : RnCard
             AutoSize = true,
             Dock = DockStyle.Fill,
             Margin = new Padding(0, 0, 0, 6)
-        }, 0, 1);
+        };
+        content.Controls.Add(_nameLabel, 0, 1);
 
-        content.Controls.Add(new RnWrappingLabel
+        _detailsLabel = new RnWrappingLabel
         {
             Text = details,
             ForeColor = RnTheme.SecondaryText,
             AutoSize = true,
             Dock = DockStyle.Fill,
             Margin = new Padding(0, 0, 0, 10)
-        }, 0, 2);
+        };
+        content.Controls.Add(_detailsLabel, 0, 2);
 
         content.Controls.Add(new Label
         {
@@ -113,7 +120,7 @@ internal sealed class RnHeroCard : RnCard
         actions.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         actions.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
-        var primary = new RnButton(canActivate ? Color.FromArgb(155, 109, 255) : Color.FromArgb(38, 198, 190))
+        _primaryButton = new RnButton(canActivate ? Color.FromArgb(155, 109, 255) : Color.FromArgb(38, 198, 190))
         {
             Text = canActivate ? "Activate" : "Capture Current Setup",
             AutoSize = true,
@@ -121,26 +128,38 @@ internal sealed class RnHeroCard : RnCard
             Margin = new Padding(0, 0, 0, 10)
         };
         if (canActivate && activate is not null)
-            primary.Click += async (_, _) => await activate();
+            _primaryButton.Click += async (_, _) => await activate();
         else
-            primary.Click += (_, _) => capture();
+            _primaryButton.Click += (_, _) => capture();
 
-        var manageButton = new RnButton(Color.FromArgb(44, 54, 60))
+        _manageButton = new RnButton(Color.FromArgb(44, 54, 60))
         {
             Text = "Manage",
             AutoSize = true,
             Dock = DockStyle.Fill,
             Margin = Padding.Empty
         };
-        manageButton.Click += (_, _) => manage();
+        _manageButton.Click += (_, _) => manage();
 
-        actions.Controls.Add(primary, 0, 0);
-        actions.Controls.Add(manageButton, 0, 1);
+        actions.Controls.Add(_primaryButton, 0, 0);
+        actions.Controls.Add(_manageButton, 0, 1);
 
         hero.Controls.Add(iconContainer, 0, 0);
         hero.Controls.Add(content, 1, 0);
         hero.Controls.Add(actions, 2, 0);
         Controls.Add(hero);
+    }
+
+    internal void UpdateEnvironment(string name, string details, bool isDetected)
+    {
+        _nameLabel.Text = name;
+        _detailsLabel.Text = details;
+        _primaryButton.Text = isDetected ? "●  Active" : "Capture Current Setup";
+        _primaryButton.BackColor = isDetected ? RnTheme.Success : RnTheme.Accent;
+        _primaryButton.Enabled = !isDetected;
+        _primaryButton.Cursor = isDetected ? Cursors.Default : Cursors.Hand;
+        _manageButton.Text = isDetected ? "Manage" : "New Environment";
+        PerformLayout();
     }
 }
 

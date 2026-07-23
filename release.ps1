@@ -8,7 +8,7 @@ $projectRoot = $PSScriptRoot
 $publishFolder = Join-Path $projectRoot 'artifacts\publish\win-x64'
 $releaseRoot = Join-Path $projectRoot 'artifacts\release'
 $runtimeFolder = Join-Path $releaseRoot 'launcher-runtime'
-$releaseName = "RenderNorth-Environments-v$Version-win-x64-Portable-Manual-Updates"
+$releaseName = "RenderNorth-Environments-Private-Beta-v$Version-win-x64-Portable-Manual-Updates"
 $releaseFolder = Join-Path $releaseRoot $releaseName
 $zipPath = Join-Path $releaseRoot "$releaseName.zip"
 $velopackOutput = Join-Path $projectRoot 'artifacts\velopack'
@@ -43,7 +43,7 @@ Get-ChildItem -LiteralPath $runtimeFolder -File | Copy-Item -Destination $releas
 Copy-Item -LiteralPath (Join-Path $projectRoot 'LICENSE') -Destination $releaseFolder
 
 $quickStart = @"
-RenderNorth Environments v$Version - Quick Start
+RenderNorth Environments Private Beta v$Version - Quick Start
 =================================================
 
 SETUP EDITION (RECOMMENDED)
@@ -81,12 +81,12 @@ Copy-Item -LiteralPath $zipPath -Destination $velopackOutput
 
 dotnet tool restore
 if ($LASTEXITCODE -ne 0) { throw "dotnet tool restore failed with exit code $LASTEXITCODE" }
-dotnet tool run vpk pack --packId RenderNorth.DisplaySwitcher --packVersion $Version --packDir $releaseFolder --mainExe RenderNorthDisplaySwitcher.exe --packTitle "RenderNorth Display Switcher" --packAuthors RenderNorth --shortcuts None --releaseNotes (Join-Path $projectRoot "docs\releases\v$Version.md") --outputDir $velopackOutput
+dotnet tool run vpk pack --packId RenderNorth.DisplaySwitcher --packVersion $Version --packDir $releaseFolder --mainExe RenderNorthDisplaySwitcher.exe --packTitle "RenderNorth Environments Private Beta" --packAuthors RenderNorth --shortcuts None --releaseNotes (Join-Path $projectRoot "docs\releases\v$Version.md") --outputDir $velopackOutput
 if ($LASTEXITCODE -ne 0) { throw "Velopack packaging failed with exit code $LASTEXITCODE" }
 
 $setup = Get-ChildItem -LiteralPath $velopackOutput -Filter '*Setup.exe' | Select-Object -First 1
-if ($null -ne $setup) { Copy-Item -LiteralPath $setup.FullName -Destination (Join-Path $velopackOutput "RenderNorth-Environments-Setup-v$Version.exe") }
-Copy-Item -LiteralPath $zipPath -Destination (Join-Path $velopackOutput "RenderNorth-Environments-v$Version-win-x64-Portable-Manual-Updates.zip") -Force
+if ($null -ne $setup) { Copy-Item -LiteralPath $setup.FullName -Destination (Join-Path $velopackOutput "RenderNorth-Environments-Private-Beta-Setup-v$Version.exe") }
+Copy-Item -LiteralPath $zipPath -Destination (Join-Path $velopackOutput "RenderNorth-Environments-Private-Beta-v$Version-win-x64-Portable-Manual-Updates.zip") -Force
 $checksums = Get-ChildItem -LiteralPath $velopackOutput -File | ForEach-Object { "{0}  {1}" -f (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash,$_.Name }
 Set-Content -LiteralPath (Join-Path $velopackOutput 'SHA256SUMS.txt') -Value $checksums -Encoding ASCII
 Write-Host "Release folder: $releaseFolder"

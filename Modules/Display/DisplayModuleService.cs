@@ -51,7 +51,19 @@ internal sealed class DisplayModuleService
     public bool Matches(DisplayProfile expected, DisplayProfile actual)
     {
         static IEnumerable<string> Keys(DisplayProfile profile) => profile.Paths.Select(path =>
-            $"{path.SourceInfo.AdapterId.Value}:{path.SourceInfo.Id}>{path.TargetInfo.AdapterId.Value}:{path.TargetInfo.Id}").Order();
+        {
+            var sourceMode = profile.Modes.FirstOrDefault(mode =>
+                mode.InfoType == DisplayConfigModeInfoType.Source &&
+                mode.AdapterId.Value == path.SourceInfo.AdapterId.Value &&
+                mode.Id == path.SourceInfo.Id);
+            var source = sourceMode.InfoType == DisplayConfigModeInfoType.Source
+                ? sourceMode.Mode.SourceMode
+                : default;
+            return $"{path.SourceInfo.AdapterId.Value}:{path.SourceInfo.Id}" +
+                   $"[{source.Width}x{source.Height}@{source.Position.X},{source.Position.Y}:{source.PixelFormat}]" +
+                   $">{path.TargetInfo.AdapterId.Value}:{path.TargetInfo.Id}" +
+                   $"[r{(uint)path.TargetInfo.Rotation}:s{(uint)path.TargetInfo.Scaling}]";
+        }).Order();
         return Keys(expected).SequenceEqual(Keys(actual));
     }
 

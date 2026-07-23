@@ -21,10 +21,11 @@ internal sealed class MainForm : Form
     private readonly Func<string> _identifyDisplays;
     private readonly Action _openDisplaySettings;
     private readonly ShortcutService _shortcuts;
-    private readonly FlowLayoutPanel _environmentList = new() { FlowDirection = FlowDirection.TopDown, WrapContents = false, AutoScroll = false };
+    private readonly TableLayoutPanel _environmentList = new() { ColumnCount = 1, RowCount = 0, AutoScroll = false };
     private readonly Panel _dashboardScroll;
     private readonly TableLayoutPanel _dashboardContent;
     private readonly RnCreatePanel _quickActions;
+    private readonly RnHeroCard _hero;
     private readonly Label _currentName = LabelText("Custom Configuration", 18, true);
     private readonly Label _currentDetails = LabelText("No matching environment", 9);
     private readonly Label _lastResult = LabelText("No environment activation has been recorded yet.", 9);
@@ -46,11 +47,13 @@ internal sealed class MainForm : Form
 
         var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 4, Padding = new Padding(LayoutTokens.WindowInset), BackColor = Background, AutoSize = false };
         root.RowStyles.Add(new RowStyle(SizeType.AutoSize)); root.RowStyles.Add(new RowStyle(SizeType.AutoSize)); root.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        root.Controls.Add(Header(), 0, 0); root.Controls.Add(CurrentCard(), 0, 1);
+        _hero = CurrentCard();
+        root.Controls.Add(Header(), 0, 0); root.Controls.Add(_hero, 0, 1);
         _dashboardScroll = new Panel { Dock = DockStyle.Fill, AutoScroll = true, BackColor = Background, Padding = new Padding(0, LayoutTokens.SectionGap, 0, LayoutTokens.SectionGap) };
         _dashboardContent = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 1, RowCount = 2, BackColor = Background };
         _dashboardContent.RowStyles.Add(new RowStyle(SizeType.AutoSize)); _dashboardContent.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         _environmentList.Dock = DockStyle.Top; _environmentList.AutoSize = true; _environmentList.AutoSizeMode = AutoSizeMode.GrowAndShrink; _environmentList.BackColor = Background; _environmentList.Padding = new Padding(0, 4, 0, 4);
+        _environmentList.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         _quickActions = (RnCreatePanel)Actions();
         _dashboardContent.Controls.Add(_environmentList, 0, 0); _dashboardContent.Controls.Add(_quickActions, 0, 1); _dashboardScroll.Controls.Add(_dashboardContent); root.Controls.Add(_dashboardScroll, 0, 2);
         _downloadButton = Button("Download and Install", Accent, async (_, _) => await DownloadAndInstallAsync()); _downloadButton.Visible = false;
@@ -71,7 +74,7 @@ internal sealed class MainForm : Form
         return panel;
     } */
 
-    private Control CurrentCard() => new RnHeroCard("Custom Configuration", "No saved environment matches the current display setup.", false, null, () => EditNew(true), ManageCurrent);
+    private RnHeroCard CurrentCard() => new("Custom Configuration", "No saved environment matches the current display setup.", false, null, () => EditNew(true), ManageCurrent);
     /*
     {
         var panel = Panel(Card); panel.Margin = new Padding(0, 6, 0, 6);
@@ -112,13 +115,18 @@ internal sealed class MainForm : Form
         EnvironmentCollection collection;
         try { collection = _manager.Load(); }
         catch (Exception exception) { _log.Error("Could not load environments", exception); _lastResult.Text = "Could not load environments: " + exception.Message; return; }
-        _environmentList.SuspendLayout(); _environmentList.Controls.Clear();
-        foreach (var environment in collection.Environments.OrderBy(item => item.SortOrder).ThenBy(item => item.Name)) _environmentList.Controls.Add(EnvironmentCard(environment));
-        if (collection.Environments.Count == 0)
+        _environmentList.SuspendLayout(); _environmentList.Controls.Clear(); _environmentList.RowStyles.Clear();
+        var environmentRow = 0;
+        foreach (var environment in collection.Environments.OrderBy(item => item.SortOrder).ThenBy(item => item.Name))
         {
-            _environmentList.Controls.Add(EmptyState());
+            _environmentList.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            _environmentList.Controls.Add(EnvironmentCard(environment), 0, environmentRow++);
         }
-        _environmentList.ResumeLayout(); _lastResult.Text = "Last activation: " + collection.ActivationStatus.LastResult;
+        _environmentList.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        _environmentList.Controls.Add(EmptyState(collection.Environments.Count > 0), 0, environmentRow++);
+        _environmentList.RowCount = environmentRow;
+        _environmentList.ResumeLayout(true); _lastResult.Text = "Last activation: " + collection.ActivationStatus.LastResult;
+        _dashboardLayoutWidth = -1;
         RelayoutDashboard();
         _lastSuccessful.Text = "Last successful activation: " + (collection.ActivationStatus.LastSuccessfulAt?.ToLocalTime().ToString("g") ?? "None recorded");
         try
@@ -127,15 +135,27 @@ internal sealed class MainForm : Form
             _detectedEnvironmentId = detected.Environment?.Id ?? Guid.Empty;
             _currentName.Text = detected.Environment?.Name ?? "Custom Configuration";
             _currentDetails.Text = detected.Environment is null ? "No matching environment" : $"{IconLabel(detected.Environment.Icon)}  {detected.Environment.Category ?? "Custom"}";
+            _hero.UpdateEnvironment(
+                detected.Environment?.Name ?? "Custom Configuration",
+                detected.Environment is null
+                    ? "No saved environment matches the current display setup."
+                    : $"{IconLabel(detected.Environment.Icon)}  {detected.Environment.Category ?? "Custom"}",
+                detected.Environment is not null);
         }
-        catch (Exception exception) { _log.Error("Environment detection failed", exception); _currentName.Text = "Custom Configuration"; _currentDetails.Text = "Detection unavailable"; }
+        catch (Exception exception)
+        {
+            _log.Error("Environment detection failed", exception);
+            _currentName.Text = "Custom Configuration";
+            _currentDetails.Text = "Detection unavailable";
+            _hero.UpdateEnvironment("Custom Configuration", "Detection unavailable", false);
+        }
     }
 
     private Control EnvironmentCard(EnvironmentDefinition environment)
     {
         var panel = Panel(Card); panel.Dock = DockStyle.None; panel.Width = Math.Max(680, _environmentList.ClientSize.Width - 24); panel.Height = 126; panel.Margin = new Padding(0, 0, 0, 9);
         var accent = CategoryColor(environment.Category); panel.Controls.Add(new Panel { BackColor = accent, Width = 5, Dock = DockStyle.Left });
-        var icon = LabelText(IconLabel(environment.Icon), 22, true); icon.BackColor = Color.FromArgb(45, accent.R, accent.G, accent.B); icon.Location = new Point(20, 25); icon.Size = new Size(58, 58); icon.TextAlign = ContentAlignment.MiddleCenter;
+        var icon = LabelText(IconLabel(environment.Icon), 22, true); icon.AutoEllipsis = false; icon.Font = new Font("Segoe UI Emoji", 22); icon.BackColor = Color.FromArgb(45, accent.R, accent.G, accent.B); icon.Location = new Point(20, 25); icon.Size = new Size(58, 58); icon.TextAlign = ContentAlignment.MiddleCenter;
         var name = LabelText(environment.Name, 13, true); name.Location = new Point(72, 13); name.Size = new Size(330, 25);
         var details = LabelText($"{environment.Category ?? "Custom"}  •  {environment.Description ?? "Display workspace"}", 9); details.ForeColor = Muted; details.Location = new Point(73, 42); details.Size = new Size(350, 35);
         var preview = new RnDisplayPreview { Category = environment.Category ?? "Custom", Location = new Point(300, 76) }; panel.Controls.Add(preview);
@@ -147,7 +167,7 @@ internal sealed class MainForm : Form
         panel.Controls.AddRange([icon, name, details, preview, activate, shortcut, edit, more]); return panel;
     }
 
-    private Control EmptyState() => new RnEmptyState(() => EditNew(true), () => EditNew(false));
+    private Control EmptyState(bool hasEnvironments = false) => new RnEmptyState(() => EditNew(true), () => EditNew(false), hasEnvironments);
 
     internal Control DashboardScrollHost => _dashboardScroll;
     internal Control DashboardContent => _dashboardContent;
@@ -180,9 +200,12 @@ internal sealed class MainForm : Form
             {
                 if (child is RnEmptyState emptyState)
                     emptyState.ApplyAvailableWidth(availableWidth);
+                else
+                    child.Width = Math.Max(1, availableWidth - _environmentList.Padding.Horizontal - child.Margin.Horizontal);
             }
 
             _quickActions.ApplyAvailableWidth(availableWidth);
+            _environmentList.PerformLayout();
             _dashboardScroll.HorizontalScroll.Visible = false;
             _dashboardScroll.HorizontalScroll.Enabled = false;
             _dashboardContent.ResumeLayout(true);

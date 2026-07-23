@@ -5,7 +5,7 @@ internal sealed class RnEmptyState : RnCard
     private const int MaximumContentWidth = 760;
     private readonly TableLayoutPanel _content;
 
-    public RnEmptyState(Action capture, Action create)
+    public RnEmptyState(Action capture, Action create, bool hasEnvironments = false)
     {
         Dock = DockStyle.Top;
         AutoSize = true;
@@ -67,7 +67,7 @@ internal sealed class RnEmptyState : RnCard
 
         _content.Controls.Add(new Label
         {
-            Text = "Welcome to RenderNorth Environments",
+            Text = hasEnvironments ? "Create Another Environment" : "Welcome to RenderNorth Environments",
             ForeColor = RnTheme.PrimaryText,
             Font = new Font("Segoe UI Semibold", 18),
             AutoSize = true,
@@ -87,7 +87,9 @@ internal sealed class RnEmptyState : RnCard
 
         _content.Controls.Add(new Label
         {
-            Text = "Create your first environment by saving your current display setup.",
+            Text = hasEnvironments
+                ? "Save the current display setup or create another environment from scratch."
+                : "Create your first environment by saving your current display setup.",
             ForeColor = RnTheme.SecondaryText,
             AutoSize = true,
             TextAlign = ContentAlignment.MiddleCenter,
