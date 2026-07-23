@@ -62,7 +62,7 @@ internal sealed class MainForm : Form
         return panel;
     } */
 
-    private Control CurrentCard() => new RnHeroCard("Custom Configuration", "No saved environment matches the current display setup.", false, null, () => EditNew(true));
+    private Control CurrentCard() => new RnHeroCard("Custom Configuration", "No saved environment matches the current display setup.", false, null, () => EditNew(true), ManageCurrent);
     /*
     {
         var panel = Panel(Card); panel.Margin = new Padding(0, 6, 0, 6);
@@ -170,6 +170,15 @@ internal sealed class MainForm : Form
         if (editor.ShowDialog(this) != DialogResult.OK) return;
         var result = _manager.Create(editor.Environment.Name, editor.Environment.Description, editor.Environment.Icon, editor.Environment.Category, editor.Environment.Modules);
         if (!result.Success) MessageBox.Show(this, result.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning); else _ = RefreshAsync();
+    }
+
+    private void ManageCurrent()
+    {
+        var environment = _manager.Load().Environments.FirstOrDefault(item => item.Id == _detectedEnvironmentId);
+        if (environment is null)
+            EditNew(false);
+        else
+            Edit(environment);
     }
 
     private void Edit(EnvironmentDefinition environment)

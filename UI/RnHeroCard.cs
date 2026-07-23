@@ -2,7 +2,7 @@ namespace RenderNorth.DisplaySwitcher.UI;
 
 internal sealed class RnHeroCard : RnCard
 {
-    public RnHeroCard(string name, string details, bool canActivate, Func<Task>? activate, Action capture)
+    public RnHeroCard(string name, string details, bool canActivate, Func<Task>? activate, Action capture, Action manage)
     {
         var heroAccent = RnTheme.Purple;
         Dock = DockStyle.Fill;
@@ -125,16 +125,17 @@ internal sealed class RnHeroCard : RnCard
         else
             primary.Click += (_, _) => capture();
 
-        var manage = new RnButton(Color.FromArgb(44, 54, 60))
+        var manageButton = new RnButton(Color.FromArgb(44, 54, 60))
         {
             Text = "Manage",
             AutoSize = true,
             Dock = DockStyle.Fill,
             Margin = Padding.Empty
         };
+        manageButton.Click += (_, _) => manage();
 
         actions.Controls.Add(primary, 0, 0);
-        actions.Controls.Add(manage, 0, 1);
+        actions.Controls.Add(manageButton, 0, 1);
 
         hero.Controls.Add(iconContainer, 0, 0);
         hero.Controls.Add(content, 1, 0);

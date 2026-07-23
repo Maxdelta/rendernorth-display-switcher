@@ -119,6 +119,16 @@ internal class RnButton : Button
         using var border = new Pen(outline);
         e.Graphics.FillPath(fill, path);
         e.Graphics.DrawPath(border, path);
+        if (Focused && ShowFocusCues)
+        {
+            var focusBounds = Rectangle.Inflate(bounds, -3, -3);
+            using var focusPath = RnCard.RoundedPath(focusBounds, 6);
+            using var focusPen = new Pen(_primary ? RnTheme.PrimaryText : (_accentColor.IsEmpty ? RnTheme.Accent : _accentColor))
+            {
+                DashStyle = DashStyle.Dot
+            };
+            e.Graphics.DrawPath(focusPen, focusPath);
+        }
 
         var parts = Text.Split(["  "], 2, StringSplitOptions.None);
         if (!_primary && !_accentColor.IsEmpty && parts.Length == 2)
