@@ -72,7 +72,8 @@ internal sealed class MainForm : Form
         panel.Controls.Add(new Label { Text = "Ready to adapt your workspace", ForeColor = Color.LightGreen, AutoSize = true, Location = new Point(560, 18) }); return panel;
     } */
 
-    private Control Actions()
+    private Control Actions() => new RnCreatePanel((_,_) => EditNew(false), (_,_) => EditNew(true), Identify, (_,_) => new SettingsForm(_updates, _log).ShowDialog(this));
+    /*
     {
         var panel = Panel(Background); var actions = new[]
         {
@@ -83,9 +84,10 @@ internal sealed class MainForm : Form
         };
         for (var index = 0; index < actions.Length; index++) { actions[index].Size = new Size(166, 38); actions[index].Location = new Point(index * 174, 8); panel.Controls.Add(actions[index]); }
         return panel;
-    }
+    } */
 
-    private Control StatusCard()
+    private Control StatusCard() => new RnStatusBar(_lastResult.Text, _lastSuccessful.Text, _updateStatus.Text);
+    /*
     {
         var panel = Panel(Card); panel.Margin = new Padding(0, 6, 0, 0);
         panel.Controls.Add(new Label { Text = "STATUS", ForeColor = Muted, AutoSize = true, Location = new Point(18, 12) });
@@ -94,7 +96,7 @@ internal sealed class MainForm : Form
         _updateStatus.Location = new Point(18, 78); _updateStatus.Size = new Size(430, 20);
         _downloadButton.Location = new Point(510, 67); _downloadButton.Size = new Size(190, 34);
         panel.Controls.AddRange([_lastResult, _lastSuccessful, _updateStatus, _downloadButton]); return panel;
-    }
+    } */
 
     private async Task RefreshAsync()
     {

@@ -43,7 +43,7 @@ internal class RnCard : Panel
     }
 }
 
-internal sealed class RnButton : Button
+internal class RnButton : Button
 {
     private Color _baseColor;
     public RnButton(Color color) { _baseColor = color; BackColor = color; FlatStyle = FlatStyle.Flat; FlatAppearance.BorderSize = 0; ForeColor = Color.White; Cursor = Cursors.Hand; DoubleBuffered = true; SetStyle(ControlStyles.UserPaint, true); }
