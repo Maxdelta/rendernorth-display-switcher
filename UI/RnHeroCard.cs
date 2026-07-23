@@ -1,19 +1,210 @@
 namespace RenderNorth.DisplaySwitcher.UI;
+
 internal sealed class RnHeroCard : RnCard
 {
     public RnHeroCard(string name, string details, bool canActivate, Func<Task>? activate, Action capture)
     {
-        Dock = DockStyle.Fill; AutoSize = true; AutoSizeMode = AutoSizeMode.GrowAndShrink; Padding = new Padding(LayoutTokens.HeroInset);
-        var grid = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 3, RowCount = 1, BackColor = Color.Transparent };
-        grid.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 112)); grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); grid.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-        var icon = new RnIconBadge(Color.FromArgb(38,198,190), "✦") { Anchor = AnchorStyles.None, Margin = new Padding(0, 0, 16, 0) }; grid.Controls.Add(icon, 0, 0);
-        var text = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 1, RowCount = 4, BackColor = Color.Transparent }; text.Controls.Add(new Label { Text = "✦  ACTIVE ENVIRONMENT", ForeColor = Color.FromArgb(38,198,190), AutoSize = true }, 0, 0); text.Controls.Add(new Label { Text = name, ForeColor = Color.White, Font = new Font("Segoe UI Semibold", 22), AutoSize = true, MaximumSize = new Size(520, 0) }, 0, 1); text.Controls.Add(new Label { Text = details, ForeColor = Color.FromArgb(174,187,194), AutoSize = true, MaximumSize = new Size(520, 0), Padding = new Padding(0, 4, 0, 4) }, 0, 2); text.Controls.Add(new Label { Text = "●  Ready", ForeColor = Color.LightGreen, AutoSize = true }, 0, 3); grid.Controls.Add(text, 1, 0);
-        var actions = new FlowLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false, BackColor = Color.Transparent, Margin = new Padding(16, 8, 0, 0) }; var primary = new RnButton(canActivate ? Color.FromArgb(155,109,255) : Color.FromArgb(38,198,190)) { Text = canActivate ? "Activate" : "Capture Current Setup", AutoSize = true, MinimumSize = new Size(150, LayoutTokens.ButtonHeight) }; if (canActivate && activate is not null) primary.Click += async (_, _) => await activate(); else primary.Click += (_, _) => capture(); var manage = new RnButton(Color.FromArgb(44,54,60)) { Text = "Manage", AutoSize = true, MinimumSize = new Size(150, LayoutTokens.ButtonHeight) }; actions.Controls.AddRange([primary, manage]); grid.Controls.Add(actions, 2, 0); Controls.Add(grid);
+        Dock = DockStyle.Fill;
+        AutoSize = true;
+        AutoSizeMode = AutoSizeMode.GrowAndShrink;
+        Padding = new Padding(LayoutTokens.HeroInset);
+
+        var hero = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            ColumnCount = 3,
+            RowCount = 1,
+            BackColor = Color.Transparent,
+            Margin = Padding.Empty
+        };
+        hero.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        hero.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        hero.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        hero.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+        var iconContainer = new TableLayoutPanel
+        {
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            ColumnCount = 1,
+            RowCount = 1,
+            BackColor = Color.Transparent,
+            Margin = new Padding(0, 0, 24, 0),
+            Anchor = AnchorStyles.None
+        };
+        iconContainer.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        iconContainer.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        iconContainer.Controls.Add(new RnIconBadge(Color.FromArgb(38, 198, 190), "✦")
+        {
+            AutoSize = true,
+            Anchor = AnchorStyles.None,
+            Margin = Padding.Empty
+        }, 0, 0);
+
+        var content = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            ColumnCount = 1,
+            RowCount = 4,
+            BackColor = Color.Transparent,
+            Margin = new Padding(0, 0, 24, 0)
+        };
+        content.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        content.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        content.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        content.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        content.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+        content.Controls.Add(new Label
+        {
+            Text = "✦  ACTIVE ENVIRONMENT",
+            ForeColor = Color.FromArgb(38, 198, 190),
+            AutoSize = true,
+            Margin = new Padding(0, 0, 0, 6),
+            Anchor = AnchorStyles.Left
+        }, 0, 0);
+
+        content.Controls.Add(new RnWrappingLabel
+        {
+            Text = name,
+            ForeColor = Color.White,
+            Font = new Font("Segoe UI Semibold", 22),
+            AutoSize = true,
+            Dock = DockStyle.Fill,
+            Margin = new Padding(0, 0, 0, 6)
+        }, 0, 1);
+
+        content.Controls.Add(new RnWrappingLabel
+        {
+            Text = details,
+            ForeColor = Color.FromArgb(174, 187, 194),
+            AutoSize = true,
+            Dock = DockStyle.Fill,
+            Margin = new Padding(0, 0, 0, 10)
+        }, 0, 2);
+
+        content.Controls.Add(new Label
+        {
+            Text = "●  Ready",
+            ForeColor = Color.LightGreen,
+            AutoSize = true,
+            Margin = Padding.Empty,
+            Anchor = AnchorStyles.Left
+        }, 0, 3);
+
+        var actions = new TableLayoutPanel
+        {
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            ColumnCount = 1,
+            RowCount = 2,
+            BackColor = Color.Transparent,
+            Margin = new Padding(0, 0, 8, 0),
+            Anchor = AnchorStyles.Right
+        };
+        actions.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        actions.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        actions.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+        var primary = new RnButton(canActivate ? Color.FromArgb(155, 109, 255) : Color.FromArgb(38, 198, 190))
+        {
+            Text = canActivate ? "Activate" : "Capture Current Setup",
+            AutoSize = true,
+            Dock = DockStyle.Fill,
+            Margin = new Padding(0, 0, 0, 10)
+        };
+        if (canActivate && activate is not null)
+            primary.Click += async (_, _) => await activate();
+        else
+            primary.Click += (_, _) => capture();
+
+        var manage = new RnButton(Color.FromArgb(44, 54, 60))
+        {
+            Text = "Manage",
+            AutoSize = true,
+            Dock = DockStyle.Fill,
+            Margin = Padding.Empty
+        };
+
+        actions.Controls.Add(primary, 0, 0);
+        actions.Controls.Add(manage, 0, 1);
+
+        hero.Controls.Add(iconContainer, 0, 0);
+        hero.Controls.Add(content, 1, 0);
+        hero.Controls.Add(actions, 2, 0);
+        Controls.Add(hero);
     }
 }
+
+internal sealed class RnWrappingLabel : Label
+{
+    public override Size GetPreferredSize(Size proposedSize)
+    {
+        var availableWidth = proposedSize.Width > 0 ? proposedSize.Width : Parent?.ClientSize.Width ?? 0;
+        if (availableWidth <= 0)
+            return base.GetPreferredSize(proposedSize);
+
+        var measured = TextRenderer.MeasureText(
+            Text,
+            Font,
+            new Size(availableWidth, int.MaxValue),
+            TextFormatFlags.WordBreak | TextFormatFlags.NoPadding);
+        return new Size(availableWidth, measured.Height);
+    }
+}
+
 internal sealed class RnIconBadge : Control
 {
-    private readonly Color _accent; private readonly string _symbol;
-    public RnIconBadge(Color accent, string symbol) { _accent = accent; _symbol = symbol; SetStyle(ControlStyles.SupportsTransparentBackColor | ControlStyles.UserPaint | ControlStyles.ResizeRedraw, true); Size = new Size(88, 88); BackColor = Color.Transparent; DoubleBuffered = true; }
-    protected override void OnPaint(PaintEventArgs e) { e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; using var b = new SolidBrush(Color.FromArgb(45, _accent.R, _accent.G, _accent.B)); e.Graphics.FillEllipse(b, 4, 4, Width - 8, Height - 8); using var p = new Pen(_accent, 2); e.Graphics.DrawEllipse(p, 4, 4, Width - 8, Height - 8); TextRenderer.DrawText(e.Graphics, _symbol, new Font("Segoe UI", 30), ClientRectangle, Color.White, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter); }
+    private readonly Color _accent;
+    private readonly string _symbol;
+
+    public RnIconBadge(Color accent, string symbol)
+    {
+        _accent = accent;
+        _symbol = symbol;
+        SetStyle(
+            ControlStyles.SupportsTransparentBackColor |
+            ControlStyles.UserPaint |
+            ControlStyles.ResizeRedraw,
+            true);
+        BackColor = Color.Transparent;
+        DoubleBuffered = true;
+    }
+
+    public override Size GetPreferredSize(Size proposedSize)
+    {
+        var side = Font.Height * 6;
+        return new Size(side, side);
+    }
+
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        e.Graphics.SetClip(ClientRectangle);
+        e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+        var inset = Math.Max(2, DeviceDpi / 24);
+        var badgeBounds = Rectangle.Inflate(ClientRectangle, -inset, -inset);
+        if (badgeBounds.Width <= 0 || badgeBounds.Height <= 0)
+            return;
+
+        using var background = new SolidBrush(Color.FromArgb(45, _accent.R, _accent.G, _accent.B));
+        using var border = new Pen(_accent, Math.Max(1f, DeviceDpi / 48f));
+        using var symbolFont = new Font("Segoe UI", Font.SizeInPoints * 3);
+        e.Graphics.FillEllipse(background, badgeBounds);
+        e.Graphics.DrawEllipse(border, badgeBounds);
+        TextRenderer.DrawText(
+            e.Graphics,
+            _symbol,
+            symbolFont,
+            badgeBounds,
+            Color.White,
+            TextFormatFlags.HorizontalCenter |
+            TextFormatFlags.VerticalCenter |
+            TextFormatFlags.NoPadding |
+            TextFormatFlags.NoClipping);
+    }
 }
