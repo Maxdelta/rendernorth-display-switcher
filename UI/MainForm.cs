@@ -28,6 +28,7 @@ internal sealed class MainForm : Form
     private readonly Label _lastSuccessful = LabelText("None recorded", 9);
     private readonly Label _updateStatus = LabelText("Not checked", 9);
     private readonly Button _downloadButton;
+    private Guid _detectedEnvironmentId;
 
     public MainForm(EnvironmentManager manager, UpdateService updates, AppLogger log,
         Func<ModuleDocument> captureDisplays, Func<string> identifyDisplays, Action openDisplaySettings, ShortcutService shortcuts)
@@ -61,14 +62,15 @@ internal sealed class MainForm : Form
         return panel;
     } */
 
-    private Control CurrentCard()
+    private Control CurrentCard() => new RnHeroCard("Custom Configuration", "No saved environment matches the current display setup.", false, null, () => EditNew(true));
+    /*
     {
         var panel = Panel(Card); panel.Margin = new Padding(0, 6, 0, 6);
         panel.Controls.Add(new Label { Text = "✦  ACTIVE ENVIRONMENT", ForeColor = Accent, AutoSize = true, Location = new Point(18, 13) });
         _currentName.Location = new Point(18, 36); _currentName.Size = new Size(680, 32); _currentName.Font = new Font("Segoe UI Semibold", 21); panel.Controls.Add(_currentName);
         _currentDetails.Location = new Point(20, 78); _currentDetails.Size = new Size(680, 22); _currentDetails.ForeColor = Muted; panel.Controls.Add(_currentDetails);
         panel.Controls.Add(new Label { Text = "Ready to adapt your workspace", ForeColor = Color.LightGreen, AutoSize = true, Location = new Point(560, 18) }); return panel;
-    }
+    } */
 
     private Control Actions()
     {
@@ -110,6 +112,7 @@ internal sealed class MainForm : Form
         try
         {
             var detected = await _manager.DetectAsync();
+            _detectedEnvironmentId = detected.Environment?.Id ?? Guid.Empty;
             _currentName.Text = detected.Environment?.Name ?? "Custom Configuration";
             _currentDetails.Text = detected.Environment is null ? "No matching environment" : $"{IconLabel(detected.Environment.Icon)}  {detected.Environment.Category ?? "Custom"}";
         }
@@ -132,7 +135,8 @@ internal sealed class MainForm : Form
         panel.Controls.AddRange([icon, name, details, preview, activate, shortcut, edit, more]); return panel;
     }
 
-    private Control EmptyState()
+    private Control EmptyState() => new RnEmptyState(() => EditNew(true), () => EditNew(false));
+    /*
     {
         var panel = new RnCard { Width = Math.Max(680, _environmentList.ClientSize.Width - 24), Height = 270, BackColor = Card, Margin = new Padding(0, 0, 0, 9), Padding = new Padding(8) };
         var star = LabelText("✦", 24, true); star.ForeColor = Accent; star.Location = new Point(30, 26); star.AutoSize = true;
@@ -147,7 +151,7 @@ internal sealed class MainForm : Form
         }
         var hint = LabelText("Capture a setup to get started, or create an environment from scratch.", 9); hint.ForeColor = Muted; hint.Location = new Point(30, 210); hint.AutoSize = true; panel.Controls.Add(hint);
         return panel;
-    }
+    } */
 
     private async Task ActivateAsync(Guid id)
     {
