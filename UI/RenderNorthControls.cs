@@ -20,15 +20,14 @@ internal class RnCard : Panel
     protected override void OnSizeChanged(EventArgs e)
     {
         base.OnSizeChanged(e);
-        var safe = new Rectangle(2, 2, Math.Max(1, Width - 5), Math.Max(1, Height - 5));
-        using var path = RoundedPath(safe, Math.Min(Radius, Math.Max(2, Math.Min(Width, Height) / 4)));
-        Region = new Region(path);
+        // Painting is decorative only. Do not assign a Region: child controls own
+        // their logical layout and must never be clipped by the rounded border.
     }
 
     protected override void OnPaintBackground(PaintEventArgs e)
     {
         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-        var safe = new Rectangle(2, 2, Math.Max(1, ClientSize.Width - 5), Math.Max(1, ClientSize.Height - 5));
+        var safe = new Rectangle(1, 1, Math.Max(1, ClientSize.Width - 3), Math.Max(1, ClientSize.Height - 3));
         using var path = RoundedPath(safe, Math.Min(Radius, Math.Max(2, Math.Min(Width, Height) / 4)));
         using var brush = new SolidBrush(BackColor);
         using var pen = new Pen(Hovered ? Color.FromArgb(90, BorderColor) : BorderColor, 1);

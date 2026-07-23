@@ -34,18 +34,19 @@ internal sealed class MainForm : Form
     {
         _manager = manager; _updates = updates; _log = log; _captureDisplays = captureDisplays;
         _identifyDisplays = identifyDisplays; _openDisplaySettings = openDisplaySettings; _shortcuts = shortcuts;
-        Text = "RenderNorth Environments"; ClientSize = new Size(760, 780); MinimumSize = new Size(776, 700);
+        Text = "RenderNorth Environments"; ClientSize = new Size(900, 760); MinimumSize = new Size(620, 520);
         StartPosition = FormStartPosition.CenterScreen; BackColor = Background; ForeColor = Color.White;
         Font = new Font("Segoe UI", 9); AutoScaleMode = AutoScaleMode.Dpi;
 
-        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 5, Padding = new Padding(18), BackColor = Background };
-        root.RowStyles.Add(new RowStyle(SizeType.Absolute, 88)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 138));
-        root.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 58)); root.RowStyles.Add(new RowStyle(SizeType.Absolute, 112));
+        var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 4, Padding = new Padding(LayoutTokens.WindowInset), BackColor = Background, AutoSize = false };
+        root.RowStyles.Add(new RowStyle(SizeType.AutoSize)); root.RowStyles.Add(new RowStyle(SizeType.AutoSize)); root.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
         root.Controls.Add(Header(), 0, 0); root.Controls.Add(CurrentCard(), 0, 1);
-        _environmentList.Dock = DockStyle.Fill; _environmentList.BackColor = Background; _environmentList.Padding = new Padding(0, 4, 0, 4);
-        root.Controls.Add(_environmentList, 0, 2); root.Controls.Add(Actions(), 0, 3);
+        var scroll = new Panel { Dock = DockStyle.Fill, AutoScroll = true, BackColor = Background, Padding = new Padding(0, LayoutTokens.SectionGap, 0, LayoutTokens.SectionGap) };
+        var content = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1, RowCount = 2, BackColor = Background };
+        _environmentList.Dock = DockStyle.Top; _environmentList.AutoSize = true; _environmentList.AutoSizeMode = AutoSizeMode.GrowAndShrink; _environmentList.BackColor = Background; _environmentList.Padding = new Padding(0, 4, 0, 4);
+        content.Controls.Add(_environmentList, 0, 0); content.Controls.Add(Actions(), 0, 1); scroll.Controls.Add(content); root.Controls.Add(scroll, 0, 2);
         _downloadButton = Button("Download and Install", Accent, async (_, _) => await DownloadAndInstallAsync()); _downloadButton.Visible = false;
-        root.Controls.Add(StatusCard(), 0, 4); Controls.Add(root);
+        root.Controls.Add(StatusCard(), 0, 3); Controls.Add(root);
         _updates.StatusChanged += OnUpdateStatusChanged;
         Shown += async (_, _) => { await RefreshAsync(); await _updates.CheckAsync(); };
     }
